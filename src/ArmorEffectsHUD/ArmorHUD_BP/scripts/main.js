@@ -1,42 +1,31 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
+import { GLYPHS } from "./glyphs.js";
 
-// The HUD data travels to the resource pack inside a hidden title.
-// Layout (must match tools/build-hud.js):
-//   "ahud:" (5 chars)
-//   5 slots (4 armor + off hand) x [item code (1) + normal field (9) + low-durability field (9)]
-//   effects text (variable length, starts at char 100)
-const VERSION = "1.2";
+// The finished HUD travels to the resource pack inside a hidden title: "ahud:" followed by the
+// text to show. Icons are characters from the pack's icon font (see glyphs.js).
+const VERSION = "1.3";
 const PREFIX = "ahud:";
-const FIELD = 9;
-const SLOTS = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Offhand];
+const SLOTS = [
+  { slot: EquipmentSlot.Head, empty: "empty_helmet" },
+  { slot: EquipmentSlot.Chest, empty: "empty_chestplate" },
+  { slot: EquipmentSlot.Legs, empty: "empty_leggings" },
+  { slot: EquipmentSlot.Feet, empty: "empty_boots" },
+  { slot: EquipmentSlot.Offhand, empty: "empty_offhand" },
+];
 const LOW_DURABILITY = 0.25; // at or below 25% the number turns red
 const UPDATE_TICKS = 10; // refresh twice a second
 const RESEND_TICKS = 100; // resend unchanged data every 5 seconds
 const TITLE_STAY_TICKS = 200; // longer than RESEND_TICKS so the HUD never blinks out
 
-// Item material -> one-letter code the resource pack maps to an icon.
-const MATERIAL_CODES = {
-  leather: "L",
-  chainmail: "C",
-  iron: "I",
-  golden: "G",
-  diamond: "D",
-  netherite: "N",
-  copper: "K",
+// Item ids whose icon name differs from the id.
+const ITEM_ICONS = {
+  totem_of_undying: "totem",
+  firework_rocket: "fireworks",
+  empty_map: "map_filled",
+  filled_map: "map_filled",
+  nautilus_shell: "nautilus",
 };
-
-// Whole item id -> code, checked before the material prefix (off-hand items mostly).
-const ITEM_CODES = {
-  turtle_helmet: "T",
-  elytra: "E",
-  shield: "S",
-  totem_of_undying: "U",
-  arrow: "A",
-  firework_rocket: "F",
-  empty_map: "M",
-  filled_map: "M",
-  nautilus_shell: "H",
-};
+const EFFECT_ICONS = { fatal_poison: "poison" };
 
 const EFFECT_NAMES = {
   speed: "Speed",
@@ -87,29 +76,24 @@ const ROMAN = ["", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " 
 
 const lastSent = new Map(); // player.id -> { payload, tick }
 
-function pad(text) {
-  text = text.slice(0, FIELD);
-  return text + " ".repeat(FIELD - text.length);
-}
-const BLANK = pad("");
-
-function itemCode(item) {
-  if (!item) return "-";
+function itemIcon(item, emptyIcon) {
+  if (!item) return GLYPHS[emptyIcon];
   const id = item.typeId.replace("minecraft:", "");
-  return ITEM_CODES[id] ?? MATERIAL_CODES[id.split("_")[0]] ?? "X";
+  const name = ITEM_ICONS[id] ?? id.replace(/^golden_/, "gold_");
+  // Armor from other add-ons has no icon: show the slot outline.
+  return GLYPHS[name] ?? GLYPHS[emptyIcon];
 }
 
-function itemFields(item) {
-  if (!item) return BLANK + BLANK;
+function itemText(item) {
+  if (!item) return "";
   const durability = item.getComponent("minecraft:durability");
   if (!durability) {
     // Totems, arrows, fireworks: show how many are left. Single items show just the icon.
-    return (item.maxAmount > 1 ? pad(`x${item.amount}`) : BLANK) + BLANK;
+    return item.maxAmount > 1 ? `§fx${item.amount}` : "";
   }
   const max = durability.maxDurability;
   const left = max - durability.damage;
-  const text = pad(`${left}/${max}`);
-  return left / max <= LOW_DURABILITY ? BLANK + text : text + BLANK;
+  return `${left / max <= LOW_DURABILITY ? "§c" : "§f"}${left}/${max}`;
 }
 
 function formatTime(ticks) {
@@ -130,24 +114,24 @@ function effectName(typeId) {
 function effectLines(player) {
   const effects = player.getEffects().filter((e) => e.duration !== 0);
   effects.sort((a, b) => a.duration - b.duration);
-  return effects
-    .map((e) => {
-      const id = e.typeId.replace("minecraft:", "");
-      const color = BAD_EFFECTS.has(id) ? "§c" : "§b";
-      const level = ROMAN[e.amplifier] ?? ` ${e.amplifier + 1}`;
-      return `${color}${effectName(e.typeId)}${level} §f${formatTime(e.duration)}`;
-    })
-    .join("\n");
+  return effects.map((e) => {
+    const id = e.typeId.replace("minecraft:", "");
+    const icon = GLYPHS[`effect_${EFFECT_ICONS[id] ?? id}`] ?? " ";
+    const color = BAD_EFFECTS.has(id) ? "§c" : "§b";
+    const level = ROMAN[e.amplifier] ?? ` ${e.amplifier + 1}`;
+    return `§f${icon} ${color}${effectName(e.typeId)}${level} §f${formatTime(e.duration)}`;
+  });
 }
 
 function buildPayload(player) {
   const equippable = player.getComponent("minecraft:equippable");
-  let payload = PREFIX;
-  for (const slot of SLOTS) {
+  const lines = SLOTS.map(({ slot, empty }) => {
     const item = equippable?.getEquipment(slot);
-    payload += itemCode(item) + itemFields(item);
-  }
-  return payload + effectLines(player);
+    return `§f${itemIcon(item, empty)} ${itemText(item)}`;
+  });
+  const effects = effectLines(player);
+  if (effects.length) lines.push("", ...effects);
+  return PREFIX + lines.join("\n");
 }
 
 system.runInterval(() => {
