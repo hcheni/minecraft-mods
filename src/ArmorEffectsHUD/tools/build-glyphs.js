@@ -7,6 +7,7 @@ const path = require("path");
 const zlib = require("zlib");
 
 const CELL = 16; // 256x256 sheet = 16x16 cells, character U+E100 + index
+const WIDTH_MARKER_ALPHA = 8; // about 3% opacity: invisible in game, but counts toward glyph width
 const LEATHER_TINT = [160, 101, 64];
 
 // --- image decoding (8-bit PNG of any color type, and 24/32-bit TGA) ---
@@ -207,6 +208,12 @@ ICONS.forEach((icon, index) => {
       if (icon.glint && a > 0) [r, g, b] = glint(r, g, b, x, y);
       sheet.data.set([r, g, b, a], d);
     }
+  }
+  // Minecraft sizes each glyph to its visible pixels, so narrow icons (boots, elytra) would shift the
+  // text after them. A barely visible pixel in both bottom corners makes every icon the full cell wide.
+  for (const x of [0, CELL - 1]) {
+    const d = ((cy + CELL - 1) * SHEET + cx + x) * 4;
+    if (sheet.data[d + 3] === 0) sheet.data.set([0, 0, 0, WIDTH_MARKER_ALPHA], d);
   }
   map[icon.name] = String.fromCharCode(0xe100 + index);
   if (index === 0 || img.width !== 16) console.log(`  ${icon.file}: ${img.width}x${img.height}`);
