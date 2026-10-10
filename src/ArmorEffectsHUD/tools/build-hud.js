@@ -1,36 +1,59 @@
 // Generates ArmorHUD_RP/ui/hud_screen.json. Run: node tools/build-hud.js
 // The payload layout here must match ArmorHUD_BP/scripts/main.js:
-//   "ahud:" + 4 slots x [material code (1) + normal text (9) + low text (9)] + effects text
+//   "ahud:" + 5 slots x [item code (1) + normal text (9) + low text (9)] + effects text
 const fs = require("fs");
 const path = require("path");
 
 const PREFIX = "ahud:";
 const SLOT_WIDTH = 19;
-const EFFECTS_START = PREFIX.length + 4 * SLOT_WIDTH; // 81
 const ICON = 16;
 const ROW_HEIGHT = 20;
-
-const PIECES = ["helmet", "chestplate", "leggings", "boots"];
-const EMPTY_ICONS = PIECES.map((p) => `textures/ui/empty_armor_slot_${p}`);
+const HUD_LIFETIME_SECONDS = 12; // the script resends at least every 5 s
 const LEATHER_TINT = [0.63, 0.4, 0.25];
 
-// Material code -> texture for each piece (null = not used for that slot).
-const MATERIALS = {
-  L: (p) => `textures/items/leather_${p}`,
-  C: (p) => `textures/items/chainmail_${p}`,
-  I: (p) => `textures/items/iron_${p}`,
-  G: (p) => `textures/items/gold_${p}`,
-  D: (p) => `textures/items/diamond_${p}`,
-  N: (p) => `textures/items/netherite_${p}`,
-  K: (p) => `textures/items/copper_${p}`,
-  T: (p) => (p === "helmet" ? "textures/items/turtle_helmet" : null),
-  E: (p) => (p === "chestplate" ? "textures/items/elytra" : null),
-};
+// Texture paths checked against Mojang's bedrock-samples (resource_pack/textures/item_texture.json).
+const armor = (piece) => ({
+  empty: `textures/ui/empty_armor_slot_${piece}`,
+  icons: {
+    L: { texture: `textures/items/leather_${piece}`, color: LEATHER_TINT },
+    C: { texture: `textures/items/chainmail_${piece}` },
+    I: { texture: `textures/items/iron_${piece}` },
+    G: { texture: `textures/items/gold_${piece}` },
+    D: { texture: `textures/items/diamond_${piece}` },
+    N: { texture: `textures/items/netherite_${piece}` },
+    K: { texture: `textures/items/copper_${piece}` },
+  },
+});
+
+const SLOTS = [
+  { name: "helmet", ...armor("helmet") },
+  { name: "chestplate", ...armor("chestplate") },
+  { name: "leggings", ...armor("leggings") },
+  { name: "boots", ...armor("boots") },
+  {
+    name: "offhand",
+    empty: "textures/ui/empty_armor_slot_shield",
+    icons: {
+      // Bedrock has no flat shield icon (it's drawn from the 3D model), so use the slot silhouette at full strength.
+      S: { texture: "textures/ui/empty_armor_slot_shield" },
+      U: { texture: "textures/items/totem" },
+      A: { texture: "textures/items/arrow" },
+      F: { texture: "textures/items/fireworks" },
+      M: { texture: "textures/items/map_filled" },
+      H: { texture: "textures/items/nautilus" },
+    },
+  },
+];
+SLOTS[0].icons.T = { texture: "textures/items/turtle_helmet" };
+SLOTS[1].icons.E = { texture: "textures/items/elytra" };
+
+const EFFECTS_START = PREFIX.length + SLOTS.length * SLOT_WIDTH;
 
 const S = "#hud_title_text_string";
 const slice = (start, end) => `(('%.${end}s' * ${S}) - ('%.${start}s' * ${S}))`;
-const titleBinding = { binding_name: S, binding_condition: "always" };
+const titleBinding = { binding_name: S, binding_type: "global", binding_condition: "always" };
 const view = (expr, target) => ({ binding_type: "view", source_property_name: expr, target_property_name: target });
+const hasPrefix = `(not ((${S} - '${PREFIX}') = ${S}))`;
 
 function image(texture, visibleExpr, extra = {}) {
   return {
@@ -48,8 +71,10 @@ function label(textExpr, color) {
   return {
     type: "label",
     text: "#text",
+    localize: false,
     shadow: true,
     color,
+    layer: 2,
     anchor_from: "left_middle",
     anchor_to: "left_middle",
     offset: [ICON + 4, 1],
@@ -58,23 +83,18 @@ function label(textExpr, color) {
   };
 }
 
-function armorRow(slotIndex) {
-  const piece = PIECES[slotIndex];
+function slotRow(slot, slotIndex) {
   const base = PREFIX.length + slotIndex * SLOT_WIDTH;
   const code = slice(base, base + 1);
   const controls = [];
-  const known = [];
 
-  for (const [letter, tex] of Object.entries(MATERIALS)) {
-    const texture = tex(piece);
-    if (!texture) continue;
-    known.push(letter);
-    const extra = letter === "L" ? { color: LEATHER_TINT } : {};
-    controls.push({ [`icon_${letter}`]: image(texture, `(${code} = '${letter}')`, extra) });
+  for (const [letter, icon] of Object.entries(slot.icons)) {
+    const extra = icon.color ? { color: icon.color } : {};
+    controls.push({ [`icon_${letter}`]: image(icon.texture, `(${code} = '${letter}')`, extra) });
   }
-  // Empty slot, or armor this HUD has no icon for: show the vanilla slot outline.
-  const notKnown = known.map((l) => `(not (${code} = '${l}'))`).join(" and ");
-  controls.push({ icon_other: image(EMPTY_ICONS[slotIndex], `(${notKnown})`, { alpha: 0.6 }) });
+  // Empty slot, or an item this HUD has no icon for: the dimmed vanilla slot outline.
+  const notKnown = Object.keys(slot.icons).map((l) => `(not (${code} = '${l}'))`).join(" and ");
+  controls.push({ icon_other: image(slot.empty, `(${notKnown})`, { alpha: 0.5 }) });
 
   controls.push({ normal: label(slice(base + 1, base + 10), [1, 1, 1]) });
   controls.push({ low: label(slice(base + 10, base + 19), [1, 0.33, 0.33]) });
@@ -82,13 +102,29 @@ function armorRow(slotIndex) {
   return { type: "panel", size: [90, ROW_HEIGHT], controls };
 }
 
+// Hides a vanilla title part while the title is carrying HUD data.
+const hideWhileHud = {
+  bindings: [titleBinding, view(`((${S} - '${PREFIX}') = ${S})`, "#visible")],
+};
+
 const hud = {
   namespace: "hud",
+
+  // Keeps each HUD copy alive for a while, then removes it, like vanilla titles do.
+  ahud_lifetime: {
+    anim_type: "alpha",
+    easing: "linear",
+    duration: HUD_LIFETIME_SECONDS,
+    from: 1,
+    to: 1,
+    destroy_at_end: "hud_title_text",
+  },
 
   ahud_root: {
     type: "panel",
     size: ["100%", "100%"],
-    bindings: [titleBinding, view(`(not ((${S} - '${PREFIX}') = ${S}))`, "#visible")],
+    alpha: "@hud.ahud_lifetime",
+    bindings: [titleBinding, view(hasPrefix, "#visible")],
     controls: [
       {
         ahud_stack: {
@@ -96,16 +132,18 @@ const hud = {
           orientation: "vertical",
           anchor_from: "left_middle",
           anchor_to: "left_middle",
-          offset: [6, -16],
+          offset: [6, -10],
           size: [220, "100%c"],
           controls: [
-            ...PIECES.map((p, i) => ({ [p]: armorRow(i) })),
+            ...SLOTS.map((slot, i) => ({ [slot.name]: slotRow(slot, i) })),
             { spacer: { type: "panel", size: [1, 6] } },
             {
               effects: {
                 type: "label",
                 text: "#text",
+                localize: false,
                 shadow: true,
+                layer: 2,
                 size: ["default", "default"],
                 bindings: [titleBinding, view(`(${S} - ('%.${EFFECTS_START}s' * ${S}))`, "#text")],
               },
@@ -134,16 +172,9 @@ const hud = {
     ],
   },
 
-  // Hide the normal title text while it's carrying HUD data.
-  "hud_title_text/title_frame/title": {
-    modifications: [
-      {
-        array_name: "bindings",
-        operation: "insert_back",
-        value: view(`((#text - '${PREFIX}') = #text)`, "#visible"),
-      },
-    ],
-  },
+  // The normal title (text and its dark background box) stays hidden while it carries HUD data.
+  "hud_title_text/title_frame": hideWhileHud,
+  "hud_title_text/subtitle_frame": hideWhileHud,
 };
 
 const out = path.join(__dirname, "..", "ArmorHUD_RP", "ui", "hud_screen.json");

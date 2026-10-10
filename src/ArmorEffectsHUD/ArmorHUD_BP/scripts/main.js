@@ -3,11 +3,12 @@ import { world, system, EquipmentSlot } from "@minecraft/server";
 // The HUD data travels to the resource pack inside a hidden title.
 // Layout (must match tools/build-hud.js):
 //   "ahud:" (5 chars)
-//   4 armor slots x [material code (1) + normal field (9) + low-durability field (9)]
-//   effects text (variable length, starts at char 81)
+//   5 slots (4 armor + off hand) x [item code (1) + normal field (9) + low-durability field (9)]
+//   effects text (variable length, starts at char 100)
+const VERSION = "1.2";
 const PREFIX = "ahud:";
 const FIELD = 9;
-const SLOTS = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet];
+const SLOTS = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet, EquipmentSlot.Offhand];
 const LOW_DURABILITY = 0.25; // at or below 25% the number turns red
 const UPDATE_TICKS = 10; // refresh twice a second
 const RESEND_TICKS = 100; // resend unchanged data every 5 seconds
@@ -22,6 +23,19 @@ const MATERIAL_CODES = {
   diamond: "D",
   netherite: "N",
   copper: "K",
+};
+
+// Whole item id -> code, checked before the material prefix (off-hand items mostly).
+const ITEM_CODES = {
+  turtle_helmet: "T",
+  elytra: "E",
+  shield: "S",
+  totem_of_undying: "U",
+  arrow: "A",
+  firework_rocket: "F",
+  empty_map: "M",
+  filled_map: "M",
+  nautilus_shell: "H",
 };
 
 const EFFECT_NAMES = {
@@ -79,18 +93,19 @@ function pad(text) {
 }
 const BLANK = pad("");
 
-function materialCode(item) {
+function itemCode(item) {
   if (!item) return "-";
   const id = item.typeId.replace("minecraft:", "");
-  if (id === "turtle_helmet") return "T";
-  if (id === "elytra") return "E";
-  return MATERIAL_CODES[id.split("_")[0]] ?? "X";
+  return ITEM_CODES[id] ?? MATERIAL_CODES[id.split("_")[0]] ?? "X";
 }
 
-function armorFields(item) {
+function itemFields(item) {
   if (!item) return BLANK + BLANK;
   const durability = item.getComponent("minecraft:durability");
-  if (!durability) return pad("--") + BLANK; // e.g. a carved pumpkin or mob head
+  if (!durability) {
+    // Totems, arrows, fireworks: show how many are left. Single items show just the icon.
+    return (item.maxAmount > 1 ? pad(`x${item.amount}`) : BLANK) + BLANK;
+  }
   const max = durability.maxDurability;
   const left = max - durability.damage;
   const text = pad(`${left}/${max}`);
@@ -130,7 +145,7 @@ function buildPayload(player) {
   let payload = PREFIX;
   for (const slot of SLOTS) {
     const item = equippable?.getEquipment(slot);
-    payload += materialCode(item) + armorFields(item);
+    payload += itemCode(item) + itemFields(item);
   }
   return payload + effectLines(player);
 }
@@ -157,6 +172,6 @@ system.runInterval(() => {
 // The chat line on joining confirms the script is running.
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
   lastSent.delete(player.id);
-  if (initialSpawn) player.sendMessage("§7[Armor HUD] v1.1 active");
+  if (initialSpawn) player.sendMessage(`§7[Armor HUD] v${VERSION} active`);
 });
 world.afterEvents.playerLeave.subscribe(({ playerId }) => lastSent.delete(playerId));
