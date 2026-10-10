@@ -1,16 +1,28 @@
 import { world, system, EquipmentSlot } from "@minecraft/server";
 
 // The HUD data travels to the resource pack inside a hidden title.
-// Layout (must match RP/ui/hud_screen.json):
+// Layout (must match tools/build-hud.js):
 //   "ahud:" (5 chars)
-//   4 armor slots x [normal field (9 chars) + low-durability field (9 chars)]
-//   effects text (variable length, starts at char 77)
+//   4 armor slots x [material code (1) + normal field (9) + low-durability field (9)]
+//   effects text (variable length, starts at char 81)
 const PREFIX = "ahud:";
 const FIELD = 9;
 const SLOTS = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs, EquipmentSlot.Feet];
 const LOW_DURABILITY = 0.25; // at or below 25% the number turns red
 const UPDATE_TICKS = 10; // refresh twice a second
 const RESEND_TICKS = 100; // resend unchanged data every 5 seconds
+const TITLE_STAY_TICKS = 200; // longer than RESEND_TICKS so the HUD never blinks out
+
+// Item material -> one-letter code the resource pack maps to an icon.
+const MATERIAL_CODES = {
+  leather: "L",
+  chainmail: "C",
+  iron: "I",
+  golden: "G",
+  diamond: "D",
+  netherite: "N",
+  copper: "K",
+};
 
 const EFFECT_NAMES = {
   speed: "Speed",
@@ -67,10 +79,18 @@ function pad(text) {
 }
 const BLANK = pad("");
 
+function materialCode(item) {
+  if (!item) return "-";
+  const id = item.typeId.replace("minecraft:", "");
+  if (id === "turtle_helmet") return "T";
+  if (id === "elytra") return "E";
+  return MATERIAL_CODES[id.split("_")[0]] ?? "X";
+}
+
 function armorFields(item) {
   if (!item) return BLANK + BLANK;
   const durability = item.getComponent("minecraft:durability");
-  if (!durability) return pad(" --") + BLANK; // e.g. a carved pumpkin or mob head
+  if (!durability) return pad("--") + BLANK; // e.g. a carved pumpkin or mob head
   const max = durability.maxDurability;
   const left = max - durability.damage;
   const text = pad(`${left}/${max}`);
@@ -109,7 +129,8 @@ function buildPayload(player) {
   const equippable = player.getComponent("minecraft:equippable");
   let payload = PREFIX;
   for (const slot of SLOTS) {
-    payload += armorFields(equippable?.getEquipment(slot));
+    const item = equippable?.getEquipment(slot);
+    payload += materialCode(item) + armorFields(item);
   }
   return payload + effectLines(player);
 }
@@ -122,7 +143,7 @@ system.runInterval(() => {
       if (prev && prev.payload === payload && system.currentTick - prev.tick < RESEND_TICKS) continue;
       player.onScreenDisplay.setTitle(payload, {
         fadeInDuration: 0,
-        stayDuration: 20,
+        stayDuration: TITLE_STAY_TICKS,
         fadeOutDuration: 0,
       });
       lastSent.set(player.id, { payload, tick: system.currentTick });
@@ -133,5 +154,9 @@ system.runInterval(() => {
 }, UPDATE_TICKS);
 
 // Force a fresh send when a player joins or respawns (their HUD starts empty).
-world.afterEvents.playerSpawn.subscribe(({ player }) => lastSent.delete(player.id));
+// The chat line on joining confirms the script is running.
+world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
+  lastSent.delete(player.id);
+  if (initialSpawn) player.sendMessage("§7[Armor HUD] v1.1 active");
+});
 world.afterEvents.playerLeave.subscribe(({ playerId }) => lastSent.delete(playerId));
