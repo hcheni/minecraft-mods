@@ -1,0 +1,154 @@
+{
+  "namespace": "hud",
+
+  "ahud_data_control": {
+    "type": "panel",
+    "size": [0, 0],
+    "property_bag": { "#preserved_text": "" },
+    "bindings": [
+      { "binding_name": "#hud_title_text_string" },
+      {
+        "binding_name": "#hud_title_text_string",
+        "binding_name_override": "#preserved_text",
+        "binding_condition": "visibility_changed"
+      },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - 'ahud:') = #hud_title_text_string))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  "ahud_field_label": {
+    "type": "label",
+    "text": "#text",
+    "shadow": true,
+    "color": "$ahud_color",
+    "$ahud_color|default": [1, 1, 1],
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "offset": [13, 1],
+    "size": ["default", 10],
+    "controls": [{ "data_control@hud.ahud_data_control": {} }],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "data_control",
+        "source_property_name": "(($ahud_end * #preserved_text) - ($ahud_start * #preserved_text))",
+        "target_property_name": "#text"
+      }
+    ]
+  },
+
+  "ahud_armor_row": {
+    "type": "panel",
+    "size": [70, 12],
+    "controls": [
+      {
+        "icon": {
+          "type": "image",
+          "texture": "$ahud_icon",
+          "size": [10, 10],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle"
+        }
+      },
+      {
+        "normal@hud.ahud_field_label": {
+          "$ahud_start": "$ahud_a_start",
+          "$ahud_end": "$ahud_a_end"
+        }
+      },
+      {
+        "low@hud.ahud_field_label": {
+          "$ahud_start": "$ahud_b_start",
+          "$ahud_end": "$ahud_b_end",
+          "$ahud_color": [1, 0.33, 0.33]
+        }
+      }
+    ]
+  },
+
+  "ahud_effects_label": {
+    "type": "label",
+    "text": "#text",
+    "shadow": true,
+    "size": ["default", "default"],
+    "controls": [{ "data_control@hud.ahud_data_control": {} }],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "data_control",
+        "source_property_name": "(#preserved_text - ('%.77s' * #preserved_text))",
+        "target_property_name": "#text"
+      }
+    ]
+  },
+
+  "ahud_panel": {
+    "type": "stack_panel",
+    "orientation": "vertical",
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "offset": [4, -10],
+    "size": [160, "100%c"],
+    "layer": 20,
+    "controls": [
+      {
+        "helmet@hud.ahud_armor_row": {
+          "$ahud_icon": "textures/ui/empty_armor_slot_helmet",
+          "$ahud_a_start": "%.5s", "$ahud_a_end": "%.14s",
+          "$ahud_b_start": "%.14s", "$ahud_b_end": "%.23s"
+        }
+      },
+      {
+        "chestplate@hud.ahud_armor_row": {
+          "$ahud_icon": "textures/ui/empty_armor_slot_chestplate",
+          "$ahud_a_start": "%.23s", "$ahud_a_end": "%.32s",
+          "$ahud_b_start": "%.32s", "$ahud_b_end": "%.41s"
+        }
+      },
+      {
+        "leggings@hud.ahud_armor_row": {
+          "$ahud_icon": "textures/ui/empty_armor_slot_leggings",
+          "$ahud_a_start": "%.41s", "$ahud_a_end": "%.50s",
+          "$ahud_b_start": "%.50s", "$ahud_b_end": "%.59s"
+        }
+      },
+      {
+        "boots@hud.ahud_armor_row": {
+          "$ahud_icon": "textures/ui/empty_armor_slot_boots",
+          "$ahud_a_start": "%.59s", "$ahud_a_end": "%.68s",
+          "$ahud_b_start": "%.68s", "$ahud_b_end": "%.77s"
+        }
+      },
+      { "spacer": { "type": "panel", "size": [1, 4] } },
+      { "effects@hud.ahud_effects_label": {} }
+    ]
+  },
+
+  "root_panel": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_front",
+        "value": [{ "ahud_panel@hud.ahud_panel": {} }]
+      }
+    ]
+  },
+
+  "hud_title_text/title_frame/title": {
+    "modifications": [
+      {
+        "array_name": "bindings",
+        "operation": "insert_back",
+        "value": {
+          "binding_type": "view",
+          "source_property_name": "((#text - 'ahud:') = #text)",
+          "target_property_name": "#visible"
+        }
+      }
+    ]
+  }
+}

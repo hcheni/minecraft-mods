@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Add-on Shelf</title>
+<meta name="description" content="Minecraft Bedrock add-ons, ready to install.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+  /* Layout: one narrow column; each add-on is a row with an inventory-slot badge, details, and an install button. */
+  :root {
+    --bg: #e8ebee;
+    --surface: #f7f8f9;
+    --slot: #c6c9cf;
+    --slot-hi: #f2f3f5;
+    --slot-lo: #8b8f97;
+    --fg: #1d2127;
+    --muted: #5a616c;
+    --line: #cfd3d9;
+    --accent: #2b55a8;
+    --accent-fg: #ffffff;
+    --tag: #dde4f2;
+    --font-display: "Pixelify Sans", "Courier New", monospace;
+    --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #181c23;
+      --surface: #212631;
+      --slot: #3a404c;
+      --slot-hi: #575e6c;
+      --slot-lo: #13161b;
+      --fg: #e4e7ec;
+      --muted: #9aa2af;
+      --line: #313744;
+      --accent: #84a8f2;
+      --accent-fg: #0f1730;
+      --tag: #2b3447;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 17px/1.55 var(--font-body);
+    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding-block: 40px 64px; display: grid; gap: 40px; }
+
+  header { display: grid; gap: 6px; }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 7vw, 3.2rem);
+    line-height: 1;
+    margin: 0;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+  .sub { margin: 0; color: var(--muted); }
+  .sub b { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.35rem;
+    margin: 0 0 12px;
+  }
+
+  .list { display: grid; gap: 12px; }
+  .mod {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    padding: 16px;
+  }
+  /* Inventory slot: the bevel Minecraft uses for item slots. */
+  .slot {
+    width: 56px; height: 56px;
+    display: grid; place-items: center;
+    background: var(--slot);
+    border: 3px solid;
+    border-color: var(--slot-lo) var(--slot-hi) var(--slot-hi) var(--slot-lo);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--fg);
+  }
+  .info { min-width: 0; display: grid; gap: 4px; }
+  .info h3 { margin: 0; font-size: 1.1rem; line-height: 1.3; }
+  .info p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 6px 12px;
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .tag {
+    background: var(--tag); color: var(--fg);
+    padding: 1px 7px; font-family: var(--font-body); font-size: 0.75rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .install {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.05rem;
+    background: var(--accent);
+    color: var(--accent-fg);
+    text-decoration: none;
+    padding: 10px 18px;
+    border: 0;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.2);
+    white-space: nowrap;
+  }
+  .install:hover { filter: brightness(1.08); }
+  .install:focus-visible, a:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+  .install:active { box-shadow: inset 3px 3px 0 rgba(0,0,0,0.25); }
+
+  .empty { color: var(--muted); border: 2px dashed var(--line); padding: 24px; text-align: center; }
+
+  .help { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .help ol { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; color: var(--muted); }
+  .help ol b { color: var(--fg); }
+  code { font-family: var(--font-mono); font-size: 0.88em; background: var(--tag); padding: 1px 5px; }
+  a { color: var(--accent); }
+
+  footer { color: var(--muted); font-size: 0.85rem; border-top: 2px solid var(--line); padding-top: 16px; }
+
+  @media (max-width: 600px) {
+    .mod { grid-template-columns: 48px 1fr; }
+    .slot { width: 48px; height: 48px; font-size: 1.35rem; }
+    .install { grid-column: 1 / -1; text-align: center; }
+    .help { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Add-on Shelf</h1>
+    <p class="sub" id="count">Minecraft Bedrock add-ons, ready to install.</p>
+  </header>
+
+  <main>
+    <h2>Add-ons</h2>
+    <div class="list" id="list">
+      <p class="empty">Loading add-ons…</p>
+    </div>
+  </main>
+
+  <section class="help">
+    <div>
+      <h2>Installing on iPad</h2>
+      <ol>
+        <li>Tap <b>Install</b> on an add-on, then tap <b>Download</b>.</li>
+        <li>Open the downloads list (the arrow in Safari's address bar) and tap the file.</li>
+        <li>If it doesn't open by itself, tap <b>Share</b> and choose <b>Minecraft</b>.</li>
+        <li>In your world's settings, turn the add-on on under <b>Behavior Packs</b>.</li>
+      </ol>
+    </div>
+    <div>
+      <h2>Adding a new add-on</h2>
+      <ol>
+        <li>Open this site's repository on GitHub and go into the <code>mods</code> folder.</li>
+        <li>Tap <b>Add file → Upload files</b> and pick the <code>.mcaddon</code> or <code>.mcpack</code> file.</li>
+        <li>Commit. It shows up here within a minute or two.</li>
+        <li>To add a description, add an entry to <code>mods.json</code>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer id="footer">Built for Minecraft Bedrock Edition. Not affiliated with Mojang or Microsoft.</footer>
+</div>
+
+<script>
+  const FILE_RE = /\.(mcaddon|mcpack|mcworld|mctemplate)$/i;
+
+  function prettyName(file) {
+    return file.replace(FILE_RE, "").replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").trim();
+  }
+
+  function formatSize(bytes) {
+    if (bytes == null) return "";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1024 / 1024).toFixed(1) + " MB";
+  }
+
+  function formatDate(iso) {
+    if (!iso) return "";
+    const d = new Date(iso + "T12:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+  }
+
+  // On GitHub Pages, list the mods folder through the GitHub API so uploaded files
+  // appear even without a mods.json entry. Returns null anywhere else.
+  async function listRepoFiles() {
+    const host = location.hostname.match(/^([^.]+)\.github\.io$/i);
+    if (!host) return null;
+    const first = location.pathname.split("/").filter(Boolean)[0];
+    const repo = first && !first.includes(".") ? first : host[1] + ".github.io";
+    try {
+      const res = await fetch(`https://api.github.com/repos/${host[1]}/${repo}/contents/mods`);
+      if (!res.ok) return null;
+      return (await res.json()).filter((f) => f.type === "file" && FILE_RE.test(f.name));
+    } catch {
+      return null;
+    }
+  }
+
+  async function loadMeta() {
+    try {
+      const res = await fetch("mods.json", { cache: "no-store" });
+      return res.ok ? await res.json() : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function render(mods) {
+    const list = document.getElementById("list");
+    list.replaceChildren();
+    document.getElementById("count").innerHTML =
+      `<b>${mods.length}</b> Minecraft Bedrock add-on${mods.length === 1 ? "" : "s"}, ready to install.`;
+
+    if (!mods.length) {
+      list.append(el("p", "empty", "No add-ons yet. Upload a .mcaddon file to the mods folder to get started."));
+      return;
+    }
+
+    for (const mod of mods) {
+      const row = el("article", "mod");
+      row.append(el("div", "slot", (mod.name || "?").trim().charAt(0).toUpperCase()));
+
+      const info = el("div", "info");
+      info.append(el("h3", null, mod.name));
+      if (mod.description) info.append(el("p", null, mod.description));
+      const meta = el("div", "meta");
+      for (const t of mod.tags || []) meta.append(el("span", "tag", t));
+      if (mod.version) meta.append(el("span", null, "v" + mod.version));
+      if (mod.minecraft) meta.append(el("span", null, "MC " + mod.minecraft));
+      if (mod.size != null) meta.append(el("span", null, formatSize(mod.size)));
+      if (mod.added) meta.append(el("span", null, formatDate(mod.added)));
+      if (meta.childElementCount) info.append(meta);
+      row.append(info);
+
+      const btn = el("a", "install", "Install");
+      btn.href = "mods/" + encodeURIComponent(mod.file);
+      btn.setAttribute("download", mod.file);
+      btn.setAttribute("aria-label", "Install " + mod.name);
+      row.append(btn);
+
+      list.append(row);
+    }
+  }
+
+  async function main() {
+    const [meta, files] = await Promise.all([loadMeta(), listRepoFiles()]);
+    const byFile = new Map(meta.filter((m) => m && m.file).map((m) => [m.file, m]));
+    let mods;
+    if (files) {
+      mods = files.map((f) => ({ name: prettyName(f.name), ...byFile.get(f.name), file: f.name, size: f.size }));
+    } else {
+      mods = [...byFile.values()].map((m) => ({ name: prettyName(m.file), ...m }));
+    }
+    mods.sort((a, b) => (b.added || "").localeCompare(a.added || "") || a.name.localeCompare(b.name));
+    render(mods);
+  }
+
+  main();
+</script>
+</body>
+</html>

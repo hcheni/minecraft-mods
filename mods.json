@@ -1,0 +1,11 @@
+[
+  {
+    "file": "ArmorEffectsHUD.mcaddon",
+    "name": "Armor & Effects HUD",
+    "description": "Shows each armor piece's durability and every potion effect's time remaining on the left side of the screen. Durability turns red at 25% or less.",
+    "version": "1.0.0",
+    "minecraft": "26.50+",
+    "added": "2026-10-09",
+    "tags": ["HUD", "UI"]
+  }
+]

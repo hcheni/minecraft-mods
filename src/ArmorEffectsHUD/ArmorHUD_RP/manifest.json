@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Armor & Effects HUD (Resources)",
+    "description": "HUD layout for armor durability and potion effect timers.",
+    "uuid": "465b1f29-6e61-401f-83fc-3e6728ff5716",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 80]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "4f6abc04-ff9d-43d4-b246-3a22816038b3",
+      "version": [1, 0, 0]
+    }
+  ]
+}
