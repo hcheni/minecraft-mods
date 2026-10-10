@@ -1,14 +1,15 @@
 [
   {
-    "file": "ArmorEffectsHUD-v1.7.mcaddon",
+    "file": "ArmorEffectsHUD-v1.8.mcaddon",
     "name": "Armor & Effects HUD",
-    "description": "Shows your armor and off-hand item with real item icons (glinting purple when enchanted) and current durability, or stack count for totems and arrows, plus every potion effect with its icon and time remaining, on the left side of the screen. Durability turns red at 25% or less.",
-    "version": "1.7.0",
+    "description": "Shows your armor and off-hand item with real item icons (glinting when enchanted) and current durability, plus every potion effect with its icon and time remaining, on the left side of the screen. When you hit a player or mob, the damage it actually took (after armor and effects) floats up above it.",
+    "version": "1.8.0",
     "minecraft": "26.50+",
     "added": "2026-10-10",
     "tags": [
       "HUD",
-      "UI"
+      "UI",
+      "Combat"
     ]
   }
 ]

@@ -1,0 +1,35 @@
+{
+  "format_version": "1.20.80",
+  "minecraft:entity": {
+    "description": {
+      "identifier": "ahud:damage_text",
+      "is_spawnable": false,
+      "is_summonable": true,
+      "is_experimental": false
+    },
+    "component_groups": {
+      "ahud:despawn": {
+        "minecraft:instant_despawn": {}
+      }
+    },
+    "components": {
+      "minecraft:type_family": { "family": ["inanimate", "ahud_damage_text"] },
+      "minecraft:collision_box": { "width": 0.01, "height": 0.01 },
+      "minecraft:physics": { "has_gravity": false, "has_collision": false },
+      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
+      "minecraft:knockback_resistance": { "value": 1 },
+      "minecraft:health": { "value": 1, "max": 1 },
+      "minecraft:damage_sensor": { "triggers": { "cause": "all", "deals_damage": false } },
+      "minecraft:fire_immune": true,
+      "minecraft:nameable": { "always_show": true, "allow_name_tag_renaming": false },
+      "minecraft:timer": {
+        "time": 2,
+        "looping": false,
+        "time_down_event": { "event": "ahud:despawn" }
+      }
+    },
+    "events": {
+      "ahud:despawn": { "add": { "component_groups": ["ahud:despawn"] } }
+    }
+  }
+}

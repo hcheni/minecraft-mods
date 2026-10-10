@@ -1,0 +1,12 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "ahud:damage_text",
+      "materials": { "default": "entity_alphatest" },
+      "textures": { "default": "textures/ui/empty_armor_slot_helmet" },
+      "geometry": { "default": "geometry.ahud_damage_text" },
+      "render_controllers": ["controller.render.default"]
+    }
+  }
+}
