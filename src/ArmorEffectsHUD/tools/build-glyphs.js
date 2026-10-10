@@ -153,6 +153,22 @@ const EFFECTS = [
 ];
 for (const e of EFFECTS) add(`effect_${e}`, `${e}_effect`);
 
+// Enchanted copies of everything that can be enchanted, with a still frame of the purple glint.
+// Added last so the characters above never move.
+const ENCHANTABLE = ICONS.filter((i) => !i.name.startsWith("empty_") && !i.name.startsWith("effect_") &&
+  /_(helmet|chestplate|leggings|boots)$|^(elytra|shield)$/.test(i.name));
+for (const icon of ENCHANTABLE) ICONS.push({ ...icon, name: `${icon.name}_enchanted`, glint: true });
+
+// Purple sheen like the enchantment glint: a light wash everywhere plus brighter diagonal bands.
+const GLINT = [168, 92, 255];
+function glint(r, g, b, x, y) {
+  const band = (x + y) % 8;
+  const strength = band === 2 || band === 3 ? 0.55 : band === 1 || band === 4 ? 0.4 : 0.22;
+  // Screen-style blend so dark pixels pick up the colour and light ones stay bright.
+  const mix = (c, t) => Math.round(c + (255 - (255 - c) * (255 - t) / 255 - c) * strength);
+  return [mix(r, GLINT[0]), mix(g, GLINT[1]), mix(b, GLINT[2])];
+}
+
 // --- build ---
 
 const srcDir = process.argv[2];
@@ -188,6 +204,7 @@ ICONS.forEach((icon, index) => {
       let [r, g, b, a] = img.data.subarray(s, s + 4);
       if (icon.tint) { r = (r * icon.tint[0]) / 255; g = (g * icon.tint[1]) / 255; b = (b * icon.tint[2]) / 255; }
       if (icon.alpha) a *= icon.alpha;
+      if (icon.glint && a > 0) [r, g, b] = glint(r, g, b, x, y);
       sheet.data.set([r, g, b, a], d);
     }
   }

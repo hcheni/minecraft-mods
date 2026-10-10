@@ -3,7 +3,7 @@ import { GLYPHS } from "./glyphs.js";
 
 // The finished HUD travels to the resource pack inside a hidden title: "ahud:" followed by the
 // text to show. Icons are characters from the pack's icon font (see glyphs.js).
-const VERSION = "1.5";
+const VERSION = "1.6";
 const PREFIX = "ahud:";
 const SLOTS = [
   { slot: EquipmentSlot.Head, empty: "empty_helmet" },
@@ -76,12 +76,21 @@ const ROMAN = ["", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " 
 
 const lastSent = new Map(); // player.id -> { payload, tick }
 
+function isEnchanted(item) {
+  try {
+    return (item.getComponent("minecraft:enchantable")?.getEnchantments().length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
 function itemIcon(item, emptyIcon) {
   if (!item) return GLYPHS[emptyIcon];
   const id = item.typeId.replace("minecraft:", "");
   const name = ITEM_ICONS[id] ?? id.replace(/^golden_/, "gold_");
+  const enchanted = isEnchanted(item) ? GLYPHS[`${name}_enchanted`] : undefined;
   // Armor from other add-ons has no icon: show the slot outline.
-  return GLYPHS[name] ?? GLYPHS[emptyIcon];
+  return enchanted ?? GLYPHS[name] ?? GLYPHS[emptyIcon];
 }
 
 function itemText(item) {
