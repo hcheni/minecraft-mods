@@ -5,7 +5,8 @@ const fs = require("fs");
 const path = require("path");
 
 const PREFIX = "ahud:";
-const FONT_SCALE = 1.3;
+const FONT_SCALE = 1.0;
+const LINE_PADDING = 3; // extra pixels between lines so icons on neighbouring lines don't overlap
 
 const S = "#hud_title_text_string";
 const titleBinding = { binding_name: S, binding_condition: "always" };
@@ -26,6 +27,7 @@ const hud = {
           shadow: true,
           text_alignment: "left",
           font_scale_factor: FONT_SCALE,
+          line_padding: LINE_PADDING,
           anchor_from: "left_middle",
           anchor_to: "left_middle",
           offset: [6, 0],

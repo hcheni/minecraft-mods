@@ -24,7 +24,8 @@
           "text": "#text",
           "shadow": true,
           "text_alignment": "left",
-          "font_scale_factor": 1.3,
+          "font_scale_factor": 1,
+          "line_padding": 3,
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
           "offset": [
