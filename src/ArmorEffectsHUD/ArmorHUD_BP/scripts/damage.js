@@ -9,7 +9,8 @@ import { world, system } from "@minecraft/server";
 const TEXT_ENTITY = "ahud:damage_text";
 const TRACK_RADIUS = 32; // blocks around each player
 const TEXT_TICKS = 20; // how long a number stays up
-const RISE_PER_TICK = 0.04; // blocks
+const RISE_PER_TICK = 0.025; // blocks, about half a block over the whole float
+const START_ABOVE_HEAD = -0.2; // blocks; the name tag itself draws a little above this point
 const SKIP_TYPES = [TEXT_ENTITY, "minecraft:item", "minecraft:xp_orb", "minecraft:arrow", "minecraft:armor_stand"];
 
 // entity id -> the last two health readings, so a hit can use one taken before that tick.
@@ -68,7 +69,7 @@ function showNumber(target, amount) {
     const head = target.getHeadLocation();
     const location = {
       x: head.x + (Math.random() - 0.5) * 0.6,
-      y: head.y + 0.6,
+      y: head.y + START_ABOVE_HEAD,
       z: head.z + (Math.random() - 0.5) * 0.6,
     };
     const text = target.dimension.spawnEntity(TEXT_ENTITY, location);
