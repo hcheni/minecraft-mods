@@ -139,7 +139,8 @@ for (const piece of ["helmet", "chestplate", "leggings", "boots"]) {
 }
 add("turtle_helmet", "turtle_helmet");
 add("elytra", "elytra");
-add("shield", "empty_armor_slot_shield"); // no flat shield icon exists in Bedrock
+// Bedrock draws the shield icon from its 3D model, so cut the front face out of the model texture.
+add("shield", "shield_entity", { region: { x: 1, y: 1, w: 12, h: 22 } });
 add("empty_offhand", "empty_armor_slot_shield", { alpha: 0.5 });
 for (const f of ["totem", "arrow", "fireworks", "map_filled", "nautilus"]) add(f, f);
 
@@ -172,13 +173,18 @@ const map = {};
 ICONS.forEach((icon, index) => {
   const img = load(icon.file);
   const cx = (index % 16) * CELL, cy = Math.floor(index / 16) * CELL;
-  for (let y = 0; y < CELL; y++) {
-    for (let x = 0; x < CELL; x++) {
-      // Effect icons are 18x18 with a border: crop to the centre. Anything else: nearest-neighbour scale.
-      const crop = img.width - CELL > 0 && img.width - CELL <= 4 ? (img.width - CELL) / 2 : null;
-      const sx = crop !== null ? x + crop : Math.floor((x * img.width) / CELL);
-      const sy = crop !== null ? y + crop : Math.floor((y * img.height) / CELL);
-      const s = (sy * img.width + sx) * 4, d = ((cy + y) * SHEET + cx + x) * 4;
+  // Source area: a region of a larger texture, an 18x18 effect icon minus its border, or the whole image.
+  const border = img.width - CELL > 0 && img.width - CELL <= 4 ? (img.width - CELL) / 2 : 0;
+  const src = icon.region ?? { x: border, y: border, w: img.width - 2 * border, h: img.height - 2 * border };
+  // Fit inside the cell keeping the shape, centred; sample pixel centres so edge rows survive scaling.
+  const scale = Math.min(CELL / src.w, CELL / src.h);
+  const w = Math.round(src.w * scale), h = Math.round(src.h * scale);
+  const ox = Math.floor((CELL - w) / 2), oy = Math.floor((CELL - h) / 2);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const sx = src.x + Math.floor(((x + 0.5) * src.w) / w);
+      const sy = src.y + Math.floor(((y + 0.5) * src.h) / h);
+      const s = (sy * img.width + sx) * 4, d = ((cy + oy + y) * SHEET + cx + ox + x) * 4;
       let [r, g, b, a] = img.data.subarray(s, s + 4);
       if (icon.tint) { r = (r * icon.tint[0]) / 255; g = (g * icon.tint[1]) / 255; b = (b * icon.tint[2]) / 255; }
       if (icon.alpha) a *= icon.alpha;

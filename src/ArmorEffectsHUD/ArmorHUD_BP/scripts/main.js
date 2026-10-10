@@ -3,7 +3,7 @@ import { GLYPHS } from "./glyphs.js";
 
 // The finished HUD travels to the resource pack inside a hidden title: "ahud:" followed by the
 // text to show. Icons are characters from the pack's icon font (see glyphs.js).
-const VERSION = "1.4";
+const VERSION = "1.5";
 const PREFIX = "ahud:";
 const SLOTS = [
   { slot: EquipmentSlot.Head, empty: "empty_helmet" },

@@ -1,10 +1,10 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Armor & Effects HUD v1.4 (Behavior)",
+    "name": "Armor & Effects HUD v1.5 (Behavior)",
     "description": "Shows armor durability and potion effect timers on the HUD.",
     "uuid": "98500e74-10ad-49dd-8292-def861cf4778",
-    "version": [1, 4, 0],
+    "version": [1, 5, 0],
     "min_engine_version": [1, 21, 80]
   },
   "modules": [
@@ -13,11 +13,11 @@
       "language": "javascript",
       "uuid": "1a8c88f0-e584-4f52-825d-f827f8e18a40",
       "entry": "scripts/main.js",
-      "version": [1, 4, 0]
+      "version": [1, 5, 0]
     }
   ],
   "dependencies": [
     { "module_name": "@minecraft/server", "version": "2.0.0" },
-    { "uuid": "465b1f29-6e61-401f-83fc-3e6728ff5716", "version": [1, 4, 0] }
+    { "uuid": "465b1f29-6e61-401f-83fc-3e6728ff5716", "version": [1, 5, 0] }
   ]
 }

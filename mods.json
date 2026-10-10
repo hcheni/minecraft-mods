@@ -1,9 +1,9 @@
 [
   {
-    "file": "ArmorEffectsHUD-v1.4.mcaddon",
+    "file": "ArmorEffectsHUD-v1.5.mcaddon",
     "name": "Armor & Effects HUD",
     "description": "Shows your armor and off-hand item with real item icons and current durability (or stack count for totems and arrows), plus every potion effect with its icon and time remaining, on the left side of the screen. Durability turns red at 25% or less.",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "minecraft": "26.50+",
     "added": "2026-10-10",
     "tags": [
