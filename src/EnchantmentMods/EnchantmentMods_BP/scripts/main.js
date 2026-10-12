@@ -97,13 +97,38 @@ async function openMenu(player) {
   player.sendMessage(`§aYour ${choice.name} now has ${aspectLabel(result)}.`);
 }
 
+// The vanilla anvil screen can't combine our books, so anyone opening it with one in their inventory
+// gets told how to use them, once per visit to the world.
+const tipped = new Set(); // player ids
+
+function showTip(player) {
+  if (tipped.has(player.id)) return;
+  const inventory = player.getComponent("minecraft:inventory")?.container;
+  if (!inventory) return;
+  for (let slot = 0; slot < inventory.size; slot++) {
+    const book = bookAspect(inventory.getItem(slot));
+    if (!book) continue;
+    tipped.add(player.id);
+    player.sendMessage(
+      `§eThe anvil screen can't combine ${aspectLabel(book)} books. Close it, hold the book in your hand and tap the anvil to choose a weapon.`
+    );
+    return;
+  }
+}
+
 world.beforeEvents.playerInteractWithBlock.subscribe((event) => {
-  if (!bookAspect(event.itemStack) || !ANVILS.has(event.block.typeId)) return;
+  if (!ANVILS.has(event.block.typeId)) return;
+  const player = event.player;
+  if (!bookAspect(event.itemStack)) {
+    if (event.isFirstEvent) system.run(() => showTip(player));
+    return;
+  }
   event.cancel = true;
   if (!event.isFirstEvent) return;
-  const player = event.player;
   system.run(() => openMenu(player));
 });
+
+world.afterEvents.playerLeave.subscribe(({ playerId }) => tipped.delete(playerId));
 
 // Vanilla can still add Fire Aspect on top of ours (anvil or enchanting table). One aspect per item,
 // so the newer Fire Aspect wins and ours comes off.
