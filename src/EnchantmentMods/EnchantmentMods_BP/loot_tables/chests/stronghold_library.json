@@ -132,8 +132,28 @@
           "weight": 333
         },
         {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 667
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 333
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 67
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 33
+        },
+        {
           "type": "empty",
-          "weight": 6200
+          "weight": 5100
         }
       ]
     }

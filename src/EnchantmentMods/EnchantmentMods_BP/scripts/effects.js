@@ -1,18 +1,23 @@
 import { world, system, EntityDamageCause, EquipmentSlot } from "@minecraft/server";
-import { getEnchants, getLevel, hasFireAspect, itemSlot } from "./items.js";
+import { canGoOn } from "./enchantments.js";
+import { getEnchants, getLevel, hasVanilla } from "./items.js";
+import { startZap, zapDamage } from "./zap.js";
 
-// What the enchantments do.
+// What the combat enchantments do.
 //   Frost Aspect         – on a melee hit the target freezes: Slowness III, snowflakes and 1 freezing
 //                          damage every 2 seconds, for 4 seconds per level.
 //   Poison Aspect        – on a melee hit, Poison for 4 seconds per level (undead are immune).
 //   Weakening Touch      – on a melee hit, Weakness I for 4 seconds per level.
+//   Wither Aspect        – on a melee hit, Wither I for 3 seconds per level.
 //   Strength Surge       – your melee hits deal 15% more damage per level while you're below half health.
+//   Zapping              – see zap.js.
+//   Life Steal           – killing anything that isn't undead with a melee hit heals 4 health
+//                          (2 hearts). Undead wielders don't heal; trident throws don't count.
 //   Protection Surge     – you take 6% less damage per level while below half health. Levels on every
 //                          worn piece add up, like vanilla Protection.
-//   Knockback Resistance – 8% less knockback per level from hits by mobs, players and projectiles.
+//   Knockback Protection – 8% less knockback per level from hits by mobs, players and projectiles.
 //                          Levels on every worn piece add up, to at most 100%.
 
-const SECONDS_PER_LEVEL = 4;
 const MELEE_CAUSES = new Set([
   EntityDamageCause.entityAttack,
   EntityDamageCause.maceSmash,
@@ -25,7 +30,14 @@ const ARMOR_SLOTS = [EquipmentSlot.Head, EquipmentSlot.Chest, EquipmentSlot.Legs
 const STRENGTH_PER_LEVEL = 0.15;
 const PROTECTION_PER_LEVEL = 0.06;
 const KNOCKBACK_PER_LEVEL = 0.08;
+const LIFE_STEAL_HEALTH = 4;
 
+const ASPECT_EFFECTS = [
+  { id: "poison_aspect", effect: "poison", secondsPerLevel: 4 },
+  { id: "weakening_touch", effect: "weakness", secondsPerLevel: 4 },
+  { id: "wither_aspect", effect: "wither", secondsPerLevel: 3 },
+];
+const FROST_SECONDS_PER_LEVEL = 4;
 const FREEZE_IMMUNE = new Set(["minecraft:stray", "minecraft:polar_bear", "minecraft:snow_golem", "minecraft:wither"]);
 const FREEZE_SLOWNESS = 2; // amplifier: Slowness III
 const FREEZE_DAMAGE = 1;
@@ -35,11 +47,33 @@ const PARTICLE_TICKS = 5;
 
 const frozen = new Map(); // entity id -> { entity, endTick, nextDamageTick }
 
-function mainhand(entity) {
+export function isMelee(damageSource) {
+  return !damageSource.damagingProjectile && MELEE_CAUSES.has(damageSource.cause);
+}
+
+export function mainhand(entity) {
   try {
     return entity.getComponent("minecraft:equippable")?.getEquipment(EquipmentSlot.Mainhand);
   } catch {
     return undefined;
+  }
+}
+
+// A mob that just died may no longer answer questions about its family, so the ids back that up.
+const UNDEAD = new Set(
+  [
+    "zombie", "husk", "drowned", "zombie_villager", "zombie_villager_v2", "zombie_pigman", "zoglin", "skeleton",
+    "stray", "wither_skeleton", "bogged", "parched", "phantom", "wither", "skeleton_horse", "zombie_horse",
+    "camel_husk",
+  ].map((id) => `minecraft:${id}`)
+);
+
+export function isUndead(entity) {
+  if (UNDEAD.has(entity.typeId)) return true;
+  try {
+    return !!entity.getComponent("minecraft:type_family")?.hasTypeFamily("undead");
+  } catch {
+    return false;
   }
 }
 
@@ -56,7 +90,7 @@ function armorLevels(entity, id) {
   for (const slot of ARMOR_SLOTS) {
     try {
       const item = equippable.getEquipment(slot);
-      if (itemSlot(item) === "armor") total += getLevel(item, id);
+      if (item && canGoOn(id, item.typeId)) total += getLevel(item, id);
     } catch {
       // Not every mob has every slot.
     }
@@ -107,15 +141,16 @@ function tickFrozen() {
 
 function applyAspect(target, weapon) {
   // An item with Fire Aspect loses our aspect within a second; until then Fire Aspect wins.
-  if (hasFireAspect(weapon)) return;
+  if (hasVanilla(weapon, "fire_aspect")) return;
   const enchants = getEnchants(weapon);
-  const levelOf = (id) => enchants[id] ?? 0;
-  if (levelOf("poison_aspect")) {
-    target.addEffect("poison", SECONDS_PER_LEVEL * 20 * levelOf("poison_aspect"), { amplifier: 0 });
-  } else if (levelOf("weakening_touch")) {
-    target.addEffect("weakness", SECONDS_PER_LEVEL * 20 * levelOf("weakening_touch"), { amplifier: 0 });
-  } else if (levelOf("frost_aspect")) {
-    freeze(target, SECONDS_PER_LEVEL * 20 * levelOf("frost_aspect"));
+  if (enchants.frost_aspect) {
+    freeze(target, FROST_SECONDS_PER_LEVEL * 20 * enchants.frost_aspect);
+    return;
+  }
+  for (const { id, effect, secondsPerLevel } of ASPECT_EFFECTS) {
+    if (!enchants[id]) continue;
+    target.addEffect(effect, secondsPerLevel * 20 * enchants[id], { amplifier: 0 });
+    return;
   }
 }
 
@@ -126,23 +161,35 @@ function resistKnockback(entity, levels) {
   entity.applyKnockback({ x: -velocity.x * share, z: -velocity.z * share }, velocity.y > 0 ? -velocity.y * share : 0);
 }
 
-// Strength Surge and Protection Surge change the damage before it's dealt.
+// Strength Surge, Protection Surge and the first Zapping zap change the damage before it's dealt.
 world.beforeEvents.entityHurt.subscribe((event) => {
   const { hurtEntity, damageSource } = event;
   let multiplier = 1;
+  let extra = 0;
 
   const attacker = damageSource.damagingEntity;
-  if (attacker && !damageSource.damagingProjectile && MELEE_CAUSES.has(damageSource.cause) && belowHalfHealth(attacker)) {
+  if (attacker && isMelee(damageSource)) {
     const weapon = mainhand(attacker);
-    if (itemSlot(weapon) === "weapon") multiplier *= 1 + STRENGTH_PER_LEVEL * getLevel(weapon, "strength_surge");
+    if (weapon) {
+      if (belowHalfHealth(attacker) && canGoOn("strength_surge", weapon.typeId)) {
+        multiplier *= 1 + STRENGTH_PER_LEVEL * getLevel(weapon, "strength_surge");
+      }
+      const zapping = canGoOn("zapping", weapon.typeId) ? getLevel(weapon, "zapping") : 0;
+      if (zapping) {
+        // The mob you hit is the first one zapped; the chain carries on next tick.
+        extra += zapDamage(zapping);
+        const { id, dimension } = hurtEntity;
+        const { x, y, z } = hurtEntity.location;
+        system.run(() => startZap(attacker, id, zapping, { x, y: y + 0.9, z }, dimension));
+      }
+    }
   }
 
   if (!UNBLOCKABLE_CAUSES.has(damageSource.cause) && belowHalfHealth(hurtEntity)) {
-    const levels = armorLevels(hurtEntity, "protection_surge");
-    multiplier *= Math.max(0, 1 - PROTECTION_PER_LEVEL * levels);
+    multiplier *= Math.max(0, 1 - PROTECTION_PER_LEVEL * armorLevels(hurtEntity, "protection_surge"));
   }
 
-  if (multiplier !== 1) event.damage *= multiplier;
+  if (multiplier !== 1 || extra) event.damage = event.damage * multiplier + extra;
 });
 
 world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource }) => {
@@ -150,16 +197,29 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource }) => {
   if (!attacker) return;
   try {
     if (!hurtEntity.isValid) return;
-    if (!damageSource.damagingProjectile && MELEE_CAUSES.has(damageSource.cause)) {
+    if (isMelee(damageSource)) {
       const weapon = mainhand(attacker);
-      if (itemSlot(weapon) === "weapon") applyAspect(hurtEntity, weapon);
+      if (weapon && canGoOn("frost_aspect", weapon.typeId)) applyAspect(hurtEntity, weapon);
     }
     if (KNOCKBACK_CAUSES.has(damageSource.cause)) {
-      const levels = armorLevels(hurtEntity, "knockback_resistance");
+      const levels = armorLevels(hurtEntity, "knockback_protection");
       if (levels > 0) resistKnockback(hurtEntity, levels);
     }
   } catch {
     // The target may have died from the hit.
+  }
+});
+
+world.afterEvents.entityDie.subscribe(({ deadEntity, damageSource }) => {
+  const killer = damageSource.damagingEntity;
+  if (!killer?.isValid || !isMelee(damageSource) || isUndead(killer) || isUndead(deadEntity)) return;
+  const weapon = mainhand(killer);
+  if (!weapon || !canGoOn("life_steal", weapon.typeId) || !getLevel(weapon, "life_steal")) return;
+  try {
+    const health = killer.getComponent("minecraft:health");
+    if (health) health.setCurrentValue(Math.min(health.effectiveMax, health.currentValue + LIFE_STEAL_HEALTH));
+  } catch {
+    // The killer died at the same moment.
   }
 });
 

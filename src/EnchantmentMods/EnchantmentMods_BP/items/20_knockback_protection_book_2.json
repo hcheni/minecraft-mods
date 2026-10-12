@@ -2,9 +2,9 @@
   "format_version": "1.21.60",
   "minecraft:item": {
     "description": {
-      "identifier": "enchmods:weakening_touch_book_2",
+      "identifier": "enchmods:knockback_protection_book_2",
       "menu_category": {
-        "category": "equipment",
+        "category": "items",
         "group": "minecraft:itemGroup.name.enchantedBook"
       }
     },
@@ -15,7 +15,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "Enchanted Book\n§7Weakening Touch II"
+        "value": "Enchanted Book\n§7Knockback Protection II"
       },
       "minecraft:glint": true,
       "minecraft:rarity": "uncommon",

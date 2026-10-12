@@ -1,23 +1,13 @@
-import { ENCHANTMENTS, enchantLabel } from "./enchantments.js";
+import { ENCHANTMENTS, OLD_NAMES, RENAMED, canGoOn, enchantLabel, enchantLine } from "./enchantments.js";
 
 // Bedrock has no custom enchantments, so ours live on the item as a dynamic property holding
-// {"frost_aspect":2,"strength_surge":1} plus gray lore lines that read like vanilla enchantments.
+// {"frost_aspect":2,"strength_surge":1} plus lore lines that read like vanilla enchantments.
 
 const PROPERTY = "enchmods:enchants";
 const OLD_PROPERTY = "enchmods:aspect"; // v1.0–1.1 stored one aspect as "frost:2"
-const LORE_PREFIX = "§r§7";
-const LORE_LINE = new RegExp(`^§r§7(${Object.values(ENCHANTMENTS).map((e) => e.name).join("|")}) [IVX]+$`);
-const WEAPON = /^minecraft:(\w+_sword|\w+_spear|mace)$/;
-const ARMOR = /^minecraft:\w+_(helmet|chestplate|leggings|boots)$/;
+const NAMES = [...Object.values(ENCHANTMENTS).map((e) => e.name), ...OLD_NAMES];
+const LORE_LINE = new RegExp(`^§r§[7c](${NAMES.join("|")})( [IVX]+)?$`);
 const BOOK = /^enchmods:(\w+)_book_(\d)$/;
-
-// "weapon", "armor", or undefined for items our enchantments can't go on.
-export function itemSlot(item) {
-  if (!item) return undefined;
-  if (WEAPON.test(item.typeId)) return "weapon";
-  if (ARMOR.test(item.typeId)) return "armor";
-  return undefined;
-}
 
 // The enchantment a book carries, or undefined for anything that isn't one of our books.
 export function bookEnchant(item) {
@@ -29,7 +19,10 @@ export function bookEnchant(item) {
 export function getEnchants(item) {
   try {
     const value = item.getDynamicProperty(PROPERTY);
-    if (typeof value === "string") return JSON.parse(value);
+    if (typeof value === "string") {
+      const stored = JSON.parse(value);
+      return Object.fromEntries(Object.entries(stored).map(([id, level]) => [RENAMED[id] ?? id, level]));
+    }
     const old = item.getDynamicProperty(OLD_PROPERTY);
     if (typeof old === "string") {
       const [aspect, level] = old.split(":");
@@ -52,45 +45,43 @@ export function setEnchants(item, enchants) {
   item.setDynamicProperty(PROPERTY, ids.length ? JSON.stringify(kept) : undefined);
   item.setDynamicProperty(OLD_PROPERTY, undefined);
   const lore = item.getLore().filter((line) => !LORE_LINE.test(line));
-  item.setLore([...ids.map((id) => LORE_PREFIX + enchantLabel(id, kept[id])), ...lore]);
+  item.setLore([...ids.map((id) => enchantLine(id, kept[id])), ...lore]);
 }
 
-export function hasFireAspect(item) {
+export function vanillaName(id) {
+  return id
+    .split("_")
+    .map((word) => (word === "of" ? word : word[0].toUpperCase() + word.slice(1)))
+    .join(" ");
+}
+
+export function hasVanilla(item, id) {
   try {
-    return !!item.getComponent("minecraft:enchantable")?.hasEnchantment("fire_aspect");
+    return !!item.getComponent("minecraft:enchantable")?.hasEnchantment(id);
   } catch {
     return false;
   }
-}
-
-// The aspect on the item (ours or vanilla Fire Aspect), as an id, or undefined.
-export function aspectOn(item, enchants = getEnchants(item)) {
-  if (hasFireAspect(item)) return "fire_aspect";
-  return Object.keys(enchants).find((id) => ENCHANTMENTS[id]?.aspect);
 }
 
 // What the item's enchantments would become with this book, or why it can't take it. Same rules as
 // vanilla books: equal levels merge into the next level, a higher level replaces a lower one.
 export function combine(item, book) {
   const ench = ENCHANTMENTS[book.id];
-  if (itemSlot(item) !== ench.slot) return { error: `${ench.name} can't go on this` };
+  if (!canGoOn(book.id, item.typeId)) return { error: `${ench.name} can't go on this` };
   const enchants = getEnchants(item);
-  const current = enchants[book.id] ?? 0;
-  if (ench.aspect) {
-    const aspect = aspectOn(item, enchants);
-    if (aspect === "fire_aspect") return { error: "Already has Fire Aspect" };
-    if (aspect && aspect !== book.id) return { error: `Already has ${enchantLabel(aspect, enchants[aspect])}` };
+  for (const id of ench.vanillaConflicts ?? []) {
+    if (hasVanilla(item, id)) return { error: `Can't be combined with ${vanillaName(id)}` };
   }
+  if (ench.aspect) {
+    const other = Object.keys(enchants).find((id) => id !== book.id && ENCHANTMENTS[id]?.aspect);
+    if (other) return { error: `Already has ${enchantLabel(other, enchants[other])}` };
+  }
+  const current = enchants[book.id] ?? 0;
   const level = current === book.level ? Math.min(current + 1, ench.maxLevel) : Math.max(current, book.level);
   if (level === current) return { error: `Already has ${enchantLabel(book.id, current)}` };
   return { enchants: { ...enchants, [book.id]: level }, level };
 }
 
 export function itemName(item) {
-  if (item.nameTag) return item.nameTag;
-  return item.typeId
-    .replace(/^minecraft:/, "")
-    .split("_")
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(" ");
+  return item.nameTag || vanillaName(item.typeId.replace(/^minecraft:/, ""));
 }

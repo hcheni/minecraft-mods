@@ -1,6 +1,6 @@
 import { world, system } from "@minecraft/server";
-import { ENCHANTMENTS } from "./enchantments.js";
-import { combine, itemSlot, setEnchants } from "./items.js";
+import { ENCHANTMENTS, canGoOn } from "./enchantments.js";
+import { addRandomEnchant } from "./rolls.js";
 
 // Enchanting a weapon or a piece of armor at an enchanting table can also give it our enchantments.
 //
@@ -15,13 +15,15 @@ const SESSION_RANGE = 8; // blocks from the table
 const SESSION_TICKS = 6000; // 5 minutes without touching the table again
 const PENDING_TICKS = 600; // the enchanted item has 30 seconds to come out of the table
 
-// Each roll can add one enchantment from its list. The chance is for the 3-level option; the 1- and
-// 2-level options get a third and two thirds of it. Rare ones are much less likely.
+// Each roll can add one enchantment from its list to an item it fits. The chance is for the 3-level
+// option; the 1- and 2-level options get a third and two thirds of it, and lower top levels.
+// maxLevel caps what the table can give. Life Steal and Breaking never come from the table.
 const ROLLS = [
-  { slot: "weapon", ids: ["frost_aspect", "poison_aspect", "weakening_touch"], chance: 0.15 },
-  { slot: "weapon", ids: ["strength_surge"], chance: 0.04 },
-  { slot: "armor", ids: ["knockback_resistance"], chance: 0.15 },
-  { slot: "armor", ids: ["protection_surge"], chance: 0.04 },
+  { ids: ["frost_aspect", "poison_aspect", "weakening_touch", "wither_aspect"], chance: 0.15 },
+  { ids: ["strength_surge"], chance: 0.04 },
+  { ids: ["zapping"], chance: 0.01, maxLevel: 2 },
+  { ids: ["knockback_protection"], chance: 0.15 },
+  { ids: ["protection_surge"], chance: 0.04 },
 ];
 
 const sessions = new Map(); // player.id -> { player, location, dimensionId, startTick, level, pendingTick, levelsSpent }
@@ -34,25 +36,19 @@ function isEnchanted(item) {
   }
 }
 
-// Lower levels are more likely, and the top levels need the 3-level option.
-function rollLevel(maxLevel, levelsSpent) {
-  const top = Math.max(1, Math.ceil((maxLevel * levelsSpent) / 3));
-  const weights = Array.from({ length: top }, (_, i) => top - i);
-  let pick = Math.random() * weights.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < top; i++) {
-    pick -= weights[i];
-    if (pick < 0) return i + 1;
-  }
-  return 1;
+function canRoll(item) {
+  return ROLLS.some(({ ids }) => ids.some((id) => canGoOn(id, item.typeId)));
 }
 
 function roll(item, levelsSpent) {
-  const slot = itemSlot(item);
-  for (const { ids, chance } of ROLLS.filter((r) => r.slot === slot)) {
+  for (const { ids, chance, maxLevel } of ROLLS) {
+    if (!ids.some((id) => canGoOn(id, item.typeId))) continue;
     if (Math.random() >= (chance * levelsSpent) / 3) continue;
-    const id = ids[Math.floor(Math.random() * ids.length)];
-    const result = combine(item, { id, level: rollLevel(ENCHANTMENTS[id].maxLevel, levelsSpent) });
-    if (!result.error) setEnchants(item, result.enchants);
+    // The top levels need the 3-level option.
+    const caps = Object.fromEntries(
+      ids.map((id) => [id, Math.max(1, Math.ceil((Math.min(ENCHANTMENTS[id].maxLevel, maxLevel ?? 9) * levelsSpent) / 3))])
+    );
+    addRandomEnchant(item, ids, caps);
   }
 }
 
@@ -63,7 +59,7 @@ function checkInventory(player, session) {
   if (!inventory) return;
   for (let slot = 0; slot < inventory.size; slot++) {
     const item = inventory.getItem(slot);
-    if (!itemSlot(item) || item.getDynamicProperty(SEEN) || !isEnchanted(item)) continue;
+    if (!item || !canRoll(item) || item.getDynamicProperty(SEEN) || !isEnchanted(item)) continue;
     if (session.pendingTick !== undefined) {
       roll(item, session.levelsSpent);
       session.pendingTick = undefined;

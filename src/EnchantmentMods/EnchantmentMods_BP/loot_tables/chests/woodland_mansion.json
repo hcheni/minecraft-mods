@@ -312,8 +312,23 @@
           "weight": 67
         },
         {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 200
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 133
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_3",
+          "weight": 67
+        },
+        {
           "type": "empty",
-          "weight": 9200
+          "weight": 8800
         }
       ]
     }

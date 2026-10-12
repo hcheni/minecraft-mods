@@ -432,7 +432,29 @@
               ],
               "gives": [
                 {
-                  "item": "enchmods:knockback_resistance_book_1",
+                  "item": "enchmods:wither_aspect_book_1",
+                  "quantity": 1
+                }
+              ],
+              "trader_exp": 15,
+              "max_uses": 12,
+              "reward_exp": true
+            },
+            {
+              "wants": [
+                {
+                  "item": "minecraft:emerald",
+                  "quantity": 13,
+                  "price_multiplier": 0.2
+                },
+                {
+                  "item": "minecraft:book",
+                  "quantity": 1
+                }
+              ],
+              "gives": [
+                {
+                  "item": "enchmods:knockback_protection_book_1",
                   "quantity": 1
                 }
               ],
@@ -454,7 +476,29 @@
               ],
               "gives": [
                 {
-                  "item": "enchmods:knockback_resistance_book_2",
+                  "item": "enchmods:knockback_protection_book_2",
+                  "quantity": 1
+                }
+              ],
+              "trader_exp": 15,
+              "max_uses": 12,
+              "reward_exp": true
+            },
+            {
+              "wants": [
+                {
+                  "item": "minecraft:emerald",
+                  "quantity": 7,
+                  "price_multiplier": 0.2
+                },
+                {
+                  "item": "minecraft:book",
+                  "quantity": 1
+                }
+              ],
+              "gives": [
+                {
+                  "item": "enchmods:breaking_book_1",
                   "quantity": 1
                 }
               ],
@@ -619,6 +663,28 @@
               "wants": [
                 {
                   "item": "minecraft:emerald",
+                  "quantity": 21,
+                  "price_multiplier": 0.2
+                },
+                {
+                  "item": "minecraft:book",
+                  "quantity": 1
+                }
+              ],
+              "gives": [
+                {
+                  "item": "enchmods:wither_aspect_book_2",
+                  "quantity": 1
+                }
+              ],
+              "trader_exp": 30,
+              "max_uses": 12,
+              "reward_exp": true
+            },
+            {
+              "wants": [
+                {
+                  "item": "minecraft:emerald",
                   "quantity": 29,
                   "price_multiplier": 0.2
                 },
@@ -629,7 +695,7 @@
               ],
               "gives": [
                 {
-                  "item": "enchmods:knockback_resistance_book_3",
+                  "item": "enchmods:knockback_protection_book_3",
                   "quantity": 1
                 }
               ],
@@ -674,6 +740,28 @@
               "gives": [
                 {
                   "item": "enchmods:protection_surge_book_1",
+                  "quantity": 1
+                }
+              ],
+              "trader_exp": 30,
+              "max_uses": 12,
+              "reward_exp": true
+            },
+            {
+              "wants": [
+                {
+                  "item": "minecraft:emerald",
+                  "quantity": 40,
+                  "price_multiplier": 0.2
+                },
+                {
+                  "item": "minecraft:book",
+                  "quantity": 1
+                }
+              ],
+              "gives": [
+                {
+                  "item": "enchmods:zapping_book_1",
                   "quantity": 1
                 }
               ],

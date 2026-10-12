@@ -2,9 +2,9 @@
   "format_version": "1.21.60",
   "minecraft:item": {
     "description": {
-      "identifier": "enchmods:poison_aspect_book_1",
+      "identifier": "enchmods:wither_aspect_book_2",
       "menu_category": {
-        "category": "equipment",
+        "category": "items",
         "group": "minecraft:itemGroup.name.enchantedBook"
       }
     },
@@ -15,7 +15,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "Enchanted Book\n§7Poison Aspect I"
+        "value": "Enchanted Book\n§7Wither Aspect II"
       },
       "minecraft:glint": true,
       "minecraft:rarity": "uncommon",

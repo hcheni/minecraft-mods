@@ -137,27 +137,42 @@
         },
         {
           "type": "item",
-          "name": "enchmods:knockback_resistance_book_1",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 267
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 133
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_1",
           "weight": 160
         },
         {
           "type": "item",
-          "name": "enchmods:knockback_resistance_book_2",
+          "name": "enchmods:knockback_protection_book_2",
           "weight": 120
         },
         {
           "type": "item",
-          "name": "enchmods:knockback_resistance_book_3",
+          "name": "enchmods:knockback_protection_book_3",
           "weight": 80
         },
         {
           "type": "item",
-          "name": "enchmods:knockback_resistance_book_4",
+          "name": "enchmods:knockback_protection_book_4",
           "weight": 40
         },
         {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 30
+        },
+        {
           "type": "empty",
-          "weight": 8200
+          "weight": 7770
         }
       ]
     }

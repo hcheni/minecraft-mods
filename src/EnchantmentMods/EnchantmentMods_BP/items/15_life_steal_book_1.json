@@ -2,9 +2,9 @@
   "format_version": "1.21.60",
   "minecraft:item": {
     "description": {
-      "identifier": "enchmods:protection_surge_book_1",
+      "identifier": "enchmods:life_steal_book_1",
       "menu_category": {
-        "category": "equipment",
+        "category": "items",
         "group": "minecraft:itemGroup.name.enchantedBook"
       }
     },
@@ -15,7 +15,7 @@
         }
       },
       "minecraft:display_name": {
-        "value": "Enchanted Book\n§7Protection Surge I"
+        "value": "Enchanted Book\n§7Life Steal"
       },
       "minecraft:glint": true,
       "minecraft:rarity": "uncommon",

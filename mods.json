@@ -1,15 +1,16 @@
 [
   {
-    "file": "EnchantmentMods-v1.2.mcaddon",
+    "file": "EnchantmentMods-v1.3.mcaddon",
     "name": "Enchantment Mods",
-    "description": "Six new enchantments. Weapons (swords, spears, maces): Frost Aspect freezes, Poison Aspect poisons and Weakening Touch weakens the target, and Strength Surge adds 15% damage per level while you are below half health. Armor: Protection Surge cuts damage by 6% per level while you are below half health, and Knockback Resistance cuts knockback by 8% per level. Find the books in trial vaults, ominous vaults, trial chamber chests, stronghold libraries and mansions, buy them from expert and master librarians, or roll them at the enchanting table. Hold a book and tap an anvil to apply it. Only one aspect per item, Fire Aspect included.",
-    "version": "1.2.0",
+    "description": "Ten new enchantments. Weapons: Frost, Poison and Wither Aspect and Weakening Touch, Strength Surge (more damage below half health), Zapping (chain lightning between nearby mobs, swords) and Life Steal (heal on kills). Armor: Protection Surge (less damage below half health) and Knockback Protection. And the Breaking curse, which wears items out faster. Find the books in trial and ominous vaults, trial chambers, strongholds, mansions, temples, outposts, ancient cities and ocean ruins, buy them from librarians, roll them at the enchanting table, or find them on mob gear and vault and End city loot. Hold a book and tap an anvil to apply it.",
+    "version": "1.3.0",
     "minecraft": "26.50+",
     "added": "2026-10-12",
     "tags": [
       "Enchantments",
       "Combat",
-      "Items"
+      "Items",
+      "Loot"
     ],
     "icon": "icons/enchantment-mods.svg"
   },
