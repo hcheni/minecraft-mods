@@ -5,189 +5,260 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Add-on Shelf</title>
 <meta name="description" content="Minecraft Bedrock add-ons, ready to install.">
+<link rel="icon" type="image/svg+xml" href="icons/shelf-mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Pixelify+Sans:wght@500;700&display=swap">
 <style>
-  /* Layout: one narrow column; each add-on is a row with an inventory-slot badge, details, and an install button. */
+  /* Mod Hub design system (claude.ai artifact "Mod Hub (Copy)"): tokens from its bundle.css. Dark only. */
   :root {
-    --bg: #e8ebee;
-    --surface: #f7f8f9;
-    --slot: #c6c9cf;
-    --slot-hi: #f2f3f5;
-    --slot-lo: #8b8f97;
-    --fg: #1d2127;
-    --muted: #5a616c;
-    --line: #cfd3d9;
-    --accent: #2b55a8;
-    --accent-fg: #ffffff;
-    --tag: #dde4f2;
-    --font-display: "Pixelify Sans", "Courier New", monospace;
-    --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-    color-scheme: light;
+    --ground: #14161a;
+    --ground-deep: #101215;
+    --surface: #1c2026;
+    --surface-raised: #232932;
+    --surface-inset: #161a1f;
+    --chip: #262c34;
+    --border: #2c323a;
+    --border-strong: #3a424c;
+    --ink: #e8ebe4;
+    --ink-soft: #c9d0c4;
+    --muted: #a9b1a5;
+    --subtle: #8f988b;
+    --grass: #6fd36b;
+    --grass-ledge: #3e8a3c;
+    --on-grass: #0d1a0f;
+    --amber: #e9b949;
+    --on-amber: #1a1405;
+
+    --font-display: "Pixelify Sans", ui-monospace, monospace;
+    --font-sans: "Instrument Sans", system-ui, sans-serif;
+
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-20: 80px;
+
+    --radius-none: 0;
+    --radius-sm: 2px;
+    --shadow-ledge: 0 4px 0 #3e8a3c;
+
+    --content-max: 1200px;
+    --touch-min: 44px;
+    --border-width: 2px;
+    color-scheme: dark;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #181c23;
-      --surface: #212631;
-      --slot: #3a404c;
-      --slot-hi: #575e6c;
-      --slot-lo: #13161b;
-      --fg: #e4e7ec;
-      --muted: #9aa2af;
-      --line: #313744;
-      --accent: #84a8f2;
-      --accent-fg: #0f1730;
-      --tag: #2b3447;
-      color-scheme: dark;
-    }
-  }
+
+  /* Text styles, as named in the system */
+  .display-page { font-family: var(--font-display); font-weight: 700; font-size: clamp(36px, 5vw, 56px); line-height: 1.05; text-wrap: balance; }
+  .display-section { font-family: var(--font-display); font-weight: 700; font-size: 36px; line-height: 1.1; text-wrap: balance; }
+  .display-card { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.2; }
+  .display-numeral { font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; }
+  .lede { font-family: var(--font-sans); font-weight: 400; font-size: 19px; line-height: 1.55; text-wrap: pretty; }
+  .body-md { font-family: var(--font-sans); font-weight: 400; font-size: 16px; line-height: 1.55; text-wrap: pretty; }
+  .body-sm { font-family: var(--font-sans); font-weight: 400; font-size: 15px; line-height: 1.55; text-wrap: pretty; }
+  .heading-step { font-family: var(--font-sans); font-weight: 600; font-size: 20px; line-height: 1.3; }
+  .nav { font-family: var(--font-sans); font-weight: 500; font-size: 16px; line-height: 1.2; }
+  .eyebrow { font-family: var(--font-sans); font-weight: 600; font-size: 14px; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; }
+  .caption { font-family: var(--font-sans); font-weight: 400; font-size: 14px; line-height: 1.55; }
 
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font: 17px/1.55 var(--font-body);
-    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px);
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.55;
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding-block: 40px 64px; display: grid; gap: 40px; }
+  h1, h2, h3, p, ol { margin: 0; }
+  a { color: var(--ink); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.9em; background: var(--chip); color: var(--ink-soft); padding: 1px 6px; border-radius: var(--radius-sm); }
+  b { color: var(--ink); font-weight: 600; }
 
-  header { display: grid; gap: 6px; }
-  h1 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: clamp(2.2rem, 7vw, 3.2rem);
-    line-height: 1;
-    margin: 0;
-    letter-spacing: 0.01em;
-    text-wrap: balance;
-  }
-  .sub { margin: 0; color: var(--muted); }
-  .sub b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  /* One content column with the system's side gutter */
+  .col { max-width: var(--content-max); margin: 0 auto; padding-inline: var(--space-6); }
 
-  h2 {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 1.35rem;
-    margin: 0 0 12px;
-  }
+  /* Header: mark + wordmark */
+  .site-header { border-bottom: var(--border-width) solid var(--surface-raised); padding-top: env(safe-area-inset-top, 0px); }
+  .site-header .col { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); min-height: 72px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: var(--space-3); text-decoration: none; color: var(--ink); min-height: var(--touch-min); }
+  .brand img { width: 32px; height: 32px; image-rendering: pixelated; }
+  .site-nav { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+  .site-nav a { display: inline-flex; align-items: center; min-height: var(--touch-min); padding: 0 var(--space-3); color: var(--muted); text-decoration: none; border-radius: var(--radius-sm); }
+  .site-nav a:hover { color: var(--ink); }
 
-  .list { display: grid; gap: 12px; }
-  .mod {
-    display: grid;
-    grid-template-columns: 56px 1fr auto;
-    gap: 16px;
-    align-items: center;
-    background: var(--surface);
-    border: 2px solid var(--line);
-    padding: 16px;
-  }
-  /* Inventory slot: the bevel Minecraft uses for item slots. */
-  .slot {
-    width: 56px; height: 56px;
-    display: grid; place-items: center;
-    background: var(--slot);
-    border: 3px solid;
-    border-color: var(--slot-lo) var(--slot-hi) var(--slot-hi) var(--slot-lo);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.6rem;
-    color: var(--fg);
-  }
-  .info { min-width: 0; display: grid; gap: 4px; }
-  .info h3 { margin: 0; font-size: 1.1rem; line-height: 1.3; }
-  .info p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-  .meta {
-    display: flex; flex-wrap: wrap; gap: 6px 12px;
-    font-family: var(--font-mono); font-size: 0.78rem; color: var(--muted);
-    font-variant-numeric: tabular-nums;
-  }
-  .tag {
-    background: var(--tag); color: var(--fg);
-    padding: 1px 7px; font-family: var(--font-body); font-size: 0.75rem;
-    letter-spacing: 0.04em; text-transform: uppercase;
-  }
-  .install {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 1.05rem;
-    background: var(--accent);
-    color: var(--accent-fg);
-    text-decoration: none;
-    padding: 10px 18px;
-    border: 0;
-    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.25), inset 3px 3px 0 rgba(255,255,255,0.2);
-    white-space: nowrap;
-  }
-  .install:hover { filter: brightness(1.08); }
-  .install:focus-visible, a:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
-  .install:active { box-shadow: inset 3px 3px 0 rgba(0,0,0,0.25); }
+  /* Hero */
+  .hero { padding-block: var(--space-20) var(--space-12); }
+  .hero .col { display: grid; gap: var(--space-4); }
+  .hero .eyebrow { color: var(--grass); }
+  .hero .lede { color: var(--muted); max-width: 520px; }
+  .hero .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
 
-  .empty { color: var(--muted); border: 2px dashed var(--line); padding: 24px; text-align: center; }
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; font-family: var(--font-sans); font-weight: 600; border-radius: var(--radius-sm); border: 0; cursor: pointer; }
+  .btn svg { flex: none; }
+  .btn-lg { min-height: 52px; padding: 0 var(--space-7); font-size: 17px; line-height: 1.2; }
+  .btn-sm { min-height: var(--touch-min); padding: 0 18px; font-size: 15px; }
+  .btn-primary { background: var(--grass); color: var(--on-grass); box-shadow: var(--shadow-ledge); }
+  .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--grass-ledge); }
+  .btn-secondary { background: transparent; color: var(--ink); border: var(--border-width) solid var(--border-strong); }
+  .btn-secondary:hover { border-color: var(--muted); }
 
-  .help { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
-  .help ol { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; color: var(--muted); }
-  .help ol b { color: var(--fg); }
-  code { font-family: var(--font-mono); font-size: 0.88em; background: var(--tag); padding: 1px 5px; }
-  a { color: var(--accent); }
+  /* Sections */
+  .section { padding-block: var(--space-20) 88px; }
+  .section.band { background: var(--ground-deep); }
+  .section-head { display: grid; gap: var(--space-2); margin-bottom: var(--space-10); }
+  .section-head .caption { color: var(--subtle); }
 
-  footer { color: var(--muted); font-size: 0.85rem; border-top: 2px solid var(--line); padding-top: 16px; }
+  /* ModCard grid */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: var(--space-6); }
+  .card { background: var(--surface); border: var(--border-width) solid var(--border); border-radius: var(--radius-sm); padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+  .tile { width: 56px; height: 56px; background: var(--surface-raised); border-radius: var(--radius-none); display: flex; align-items: center; justify-content: center; flex: none; }
+  .tile img { width: 40px; height: 40px; image-rendering: pixelated; }
+  .card .body-sm { color: var(--muted); max-width: 65ch; }
+  .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .tag { font-family: var(--font-sans); font-weight: 500; font-size: 13px; line-height: 1.3; padding: var(--space-1) 10px; background: var(--chip); color: var(--ink-soft); border-radius: var(--radius-sm); }
+  .tag.hl { background: var(--amber); color: var(--on-amber); font-weight: 600; }
+  .card-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-top: auto; padding-top: var(--space-4); border-top: var(--border-width) solid var(--border); flex-wrap: wrap; }
+  .card-foot .caption { color: var(--subtle); font-variant-numeric: tabular-nums; }
+  .empty { color: var(--muted); border: var(--border-width) dashed var(--border-strong); border-radius: var(--radius-sm); padding: var(--space-6); }
+
+  /* Steps: a real sequence, so numerals in grass */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: var(--space-8); list-style: none; padding: 0; }
+  .step { display: grid; gap: var(--space-3); align-content: start; min-width: 0; }
+  .step .display-numeral { color: var(--grass); }
+  .step .body-md { color: var(--muted); }
+  .note { margin-top: var(--space-10); color: var(--muted); max-width: 720px; }
+
+  /* Footer */
+  .site-footer { background: var(--ground-deep); border-top: var(--border-width) solid var(--surface-raised); padding-block: var(--space-10) calc(var(--space-10) + env(safe-area-inset-bottom, 0px)); }
+  .site-footer .col { display: grid; gap: var(--space-2); }
+  .site-footer .caption { color: var(--subtle); }
 
   @media (max-width: 600px) {
-    .mod { grid-template-columns: 48px 1fr; }
-    .slot { width: 48px; height: 48px; font-size: 1.35rem; }
-    .install { grid-column: 1 / -1; text-align: center; }
-    .help { grid-template-columns: 1fr; }
+    .hero { padding-block: var(--space-12) var(--space-10); }
+    .section { padding-block: var(--space-12) var(--space-12); }
+    .display-section { font-size: 30px; }
+    .btn-lg { width: 100%; }
   }
+  @media (prefers-reduced-motion: reduce) { .btn-primary:active { transform: none; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Add-on Shelf</h1>
-    <p class="sub" id="count">Minecraft Bedrock add-ons, ready to install.</p>
-  </header>
+<header class="site-header">
+  <div class="col">
+    <a class="brand" href="./">
+      <img src="icons/shelf-mark.svg" alt="">
+      <span class="display-card">Add-on Shelf</span>
+    </a>
+    <nav class="site-nav nav" aria-label="Sections">
+      <a href="#addons">Add-ons</a>
+      <a href="#install">How to install</a>
+      <a href="#add">Add a mod</a>
+    </nav>
+  </div>
+</header>
 
-  <main>
-    <h2>Add-ons</h2>
-    <div class="list" id="list">
-      <p class="empty">Loading add-ons…</p>
-    </div>
-  </main>
-
-  <section class="help">
-    <div>
-      <h2>Installing on iPad</h2>
-      <ol>
-        <li>Tap <b>Install</b> on an add-on, then tap <b>Download</b>.</li>
-        <li>Open the downloads list (the arrow in Safari's address bar) and tap the file.</li>
-        <li>If it doesn't open by itself, tap <b>Share</b> and choose <b>Minecraft</b>.</li>
-        <li>In your world's settings, turn the add-on on under <b>Behavior Packs</b>.</li>
-        <li><b>Updating?</b> Worlds keep using the version they were set up with. Remove the old version from the world's Behavior and Resource Packs, then add the new one.</li>
-      </ol>
-    </div>
-    <div>
-      <h2>Adding a new add-on</h2>
-      <ol>
-        <li>Open this site's repository on GitHub and go into the <code>mods</code> folder.</li>
-        <li>Tap <b>Add file → Upload files</b> and pick the <code>.mcaddon</code> or <code>.mcpack</code> file. Put the version in the file name (for example <code>MyMod-v1.2.mcaddon</code>) so devices never mix up an old download with a new one.</li>
-        <li>Commit. It shows up here within a minute or two.</li>
-        <li>To add a description, add an entry to <code>mods.json</code>.</li>
-      </ol>
+<main>
+  <section class="hero">
+    <div class="col">
+      <p class="eyebrow">Add-ons for Minecraft Bedrock</p>
+      <h1 class="display-page">Mods for iPad and Windows, ready to install.</h1>
+      <p class="lede">Download an add-on, open it in Minecraft, and turn it on in your world. Each one works on any device that runs Bedrock.</p>
+      <div class="actions">
+        <a class="btn btn-lg btn-primary" href="#addons">Browse add-ons</a>
+        <a class="btn btn-lg btn-secondary" href="#install">How to install</a>
+      </div>
     </div>
   </section>
 
-  <footer id="footer">Built for Minecraft Bedrock Edition. Not affiliated with Mojang or Microsoft.</footer>
-</div>
+  <section class="section band" id="addons">
+    <div class="col">
+      <div class="section-head">
+        <h2 class="display-section">Add-ons</h2>
+        <p class="caption" id="count">Loading add-ons…</p>
+      </div>
+      <div class="grid" id="list"></div>
+    </div>
+  </section>
+
+  <section class="section" id="install">
+    <div class="col">
+      <div class="section-head">
+        <h2 class="display-section">How to install</h2>
+        <p class="caption">On iPad. On Windows, opening the downloaded file is enough for step 2.</p>
+      </div>
+      <ol class="steps">
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">1</span>
+          <h3 class="heading-step">Download it</h3>
+          <p class="body-md">Tap <b>Download</b> on an add-on. The file name ends in its version, such as <code>-v1.9.mcaddon</code>.</p>
+        </li>
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">2</span>
+          <h3 class="heading-step">Open it in Minecraft</h3>
+          <p class="body-md">Open Safari's downloads list and tap the file. If it doesn't open by itself, tap <b>Share</b> and choose <b>Minecraft</b>.</p>
+        </li>
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">3</span>
+          <h3 class="heading-step">Turn it on in your world</h3>
+          <p class="body-md">Edit the world and add the add-on under <b>Behavior Packs</b>. Its resource pack turns on with it.</p>
+        </li>
+      </ol>
+      <p class="body-md note"><b>Updating?</b> A world keeps the version it was set up with. Remove the old version from the world's Behavior and Resource Packs, then add the new one.</p>
+    </div>
+  </section>
+
+  <section class="section band" id="add">
+    <div class="col">
+      <div class="section-head">
+        <h2 class="display-section">Add a mod</h2>
+        <p class="caption">Works from the GitHub app or github.com on any device.</p>
+      </div>
+      <ol class="steps">
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">1</span>
+          <h3 class="heading-step">Open the mods folder</h3>
+          <p class="body-md">In this site's repository on GitHub, go into the <code>mods</code> folder.</p>
+        </li>
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">2</span>
+          <h3 class="heading-step">Upload the file</h3>
+          <p class="body-md">Tap <b>Add file → Upload files</b> and pick the <code>.mcaddon</code> or <code>.mcpack</code>. Put the version in the name, for example <code>MyMod-v1.2.mcaddon</code>.</p>
+        </li>
+        <li class="step">
+          <span class="display-numeral" aria-hidden="true">3</span>
+          <h3 class="heading-step">Commit</h3>
+          <p class="body-md">It shows up here within a minute or two. To give it a description, tags or an icon, add an entry to <code>mods.json</code>.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="col">
+    <p class="caption">Add-ons for Minecraft Bedrock Edition.</p>
+    <p class="caption">Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</p>
+  </div>
+</footer>
 
 <script>
   const FILE_RE = /\.(mcaddon|mcpack|mcworld|mctemplate)$/i;
+  const DEFAULT_ICON = "icons/shelf-mark.svg";
+  const DOWNLOAD_ICON =
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" aria-hidden="true"><path d="M12 3v13M6 11l6 6 6-6M4 21h16"/></svg>';
 
   function prettyName(file) {
-    return file.replace(FILE_RE, "").replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").trim();
+    return file.replace(FILE_RE, "").replace(/-v\d+(\.\d+)*$/i, "").replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").trim();
   }
 
   function formatSize(bytes) {
@@ -238,38 +309,49 @@
   function render(mods) {
     const list = document.getElementById("list");
     list.replaceChildren();
-    document.getElementById("count").innerHTML =
-      `<b>${mods.length}</b> Minecraft Bedrock add-on${mods.length === 1 ? "" : "s"}, ready to install.`;
+    document.getElementById("count").textContent =
+      mods.length === 1 ? "1 add-on" : `${mods.length} add-ons`;
 
     if (!mods.length) {
-      list.append(el("p", "empty", "No add-ons yet. Upload a .mcaddon file to the mods folder to get started."));
+      list.append(el("p", "empty body-sm", "No add-ons yet. Upload a .mcaddon file to the mods folder to get started."));
       return;
     }
 
-    for (const mod of mods) {
-      const row = el("article", "mod");
-      row.append(el("div", "slot", (mod.name || "?").trim().charAt(0).toUpperCase()));
+    mods.forEach((mod, i) => {
+      const card = el("article", "card");
 
-      const info = el("div", "info");
-      info.append(el("h3", null, mod.name));
-      if (mod.description) info.append(el("p", null, mod.description));
-      const meta = el("div", "meta");
-      for (const t of mod.tags || []) meta.append(el("span", "tag", t));
-      if (mod.version) meta.append(el("span", null, "v" + mod.version));
-      if (mod.minecraft) meta.append(el("span", null, "MC " + mod.minecraft));
-      if (mod.size != null) meta.append(el("span", null, formatSize(mod.size)));
-      if (mod.added) meta.append(el("span", null, formatDate(mod.added)));
-      if (meta.childElementCount) info.append(meta);
-      row.append(info);
+      const tile = el("div", "tile");
+      const img = el("img");
+      img.src = mod.icon || DEFAULT_ICON;
+      img.alt = "";
+      img.width = 40;
+      img.height = 40;
+      img.onerror = () => { if (!img.src.endsWith(DEFAULT_ICON)) img.src = DEFAULT_ICON; };
+      tile.append(img);
+      card.append(tile);
 
-      const btn = el("a", "install", "Install");
+      card.append(el("h3", "display-card", mod.name));
+      if (mod.description) card.append(el("p", "body-sm", mod.description));
+
+      const tags = el("div", "tags");
+      if (i === 0 && mods.length > 1) tags.append(el("span", "tag hl", "Newest release"));
+      if (mod.minecraft) tags.append(el("span", "tag", "MC " + mod.minecraft));
+      for (const t of mod.tags || []) tags.append(el("span", "tag", t));
+      if (tags.childElementCount) card.append(tags);
+
+      const foot = el("div", "card-foot");
+      const meta = [mod.version && "v" + mod.version, formatSize(mod.size), formatDate(mod.added)].filter(Boolean).join(" · ");
+      foot.append(el("span", "caption", meta));
+      const btn = el("a", "btn btn-sm btn-secondary");
       btn.href = "mods/" + encodeURIComponent(mod.file);
       btn.setAttribute("download", mod.file);
-      btn.setAttribute("aria-label", "Install " + mod.name);
-      row.append(btn);
+      btn.innerHTML = DOWNLOAD_ICON;
+      btn.append(mod.version ? `Download v${mod.version.replace(/\.0$/, "")}` : "Download");
+      foot.append(btn);
+      card.append(foot);
 
-      list.append(row);
-    }
+      list.append(card);
+    });
   }
 
   async function main() {
