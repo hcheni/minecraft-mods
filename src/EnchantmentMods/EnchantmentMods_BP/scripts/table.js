@@ -1,11 +1,12 @@
 import { world, system } from "@minecraft/server";
-import { getAspect, hasFireAspect, isWeapon, setAspect } from "./aspects.js";
+import { ENCHANTMENTS } from "./enchantments.js";
+import { combine, itemSlot, setEnchants } from "./items.js";
 
-// Enchanting a sword, spear or mace at an enchanting table can also give it Frost or Poison Aspect.
+// Enchanting a weapon or a piece of armor at an enchanting table can also give it our enchantments.
 //
 // Scripts get no event for enchanting, so we watch players who just used a table: when their XP level
-// drops (they paid for an enchantment) and a newly enchanted weapon shows up in their inventory, that's
-// the one they enchanted. Enchanted weapons they already had are marked as seen so they never roll.
+// drops (they paid for an enchantment) and a newly enchanted item shows up in their inventory, that's
+// the one they enchanted. Enchanted items they already had are marked as seen so they never roll.
 
 const TABLE = "minecraft:enchanting_table";
 const SEEN = "enchmods:seen";
@@ -13,8 +14,15 @@ const CHECK_TICKS = 4;
 const SESSION_RANGE = 8; // blocks from the table
 const SESSION_TICKS = 6000; // 5 minutes without touching the table again
 const PENDING_TICKS = 600; // the enchanted item has 30 seconds to come out of the table
-const CHANCE_PER_LEVEL_SPENT = 0.05; // 5%, 10% or 15% for the 1, 2 or 3 level options
-const LEVEL_TWO_CHANCE = [0, 0, 0.25, 0.5]; // by levels spent
+
+// Each roll can add one enchantment from its list. The chance is for the 3-level option; the 1- and
+// 2-level options get a third and two thirds of it. Rare ones are much less likely.
+const ROLLS = [
+  { slot: "weapon", ids: ["frost_aspect", "poison_aspect", "weakening_touch"], chance: 0.15 },
+  { slot: "weapon", ids: ["strength_surge"], chance: 0.04 },
+  { slot: "armor", ids: ["knockback_resistance"], chance: 0.15 },
+  { slot: "armor", ids: ["protection_surge"], chance: 0.04 },
+];
 
 const sessions = new Map(); // player.id -> { player, location, dimensionId, startTick, level, pendingTick, levelsSpent }
 
@@ -26,22 +34,36 @@ function isEnchanted(item) {
   }
 }
 
-function roll(item, levelsSpent) {
-  if (getAspect(item) || hasFireAspect(item)) return;
-  if (Math.random() >= CHANCE_PER_LEVEL_SPENT * levelsSpent) return;
-  const id = Math.random() < 0.5 ? "frost" : "poison";
-  const level = Math.random() < LEVEL_TWO_CHANCE[levelsSpent] ? 2 : 1;
-  setAspect(item, { id, level });
+// Lower levels are more likely, and the top levels need the 3-level option.
+function rollLevel(maxLevel, levelsSpent) {
+  const top = Math.max(1, Math.ceil((maxLevel * levelsSpent) / 3));
+  const weights = Array.from({ length: top }, (_, i) => top - i);
+  let pick = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < top; i++) {
+    pick -= weights[i];
+    if (pick < 0) return i + 1;
+  }
+  return 1;
 }
 
-// Marks newly seen enchanted weapons. While an enchantment is pending, the first one is the item
-// that just came out of the table and gets a roll.
+function roll(item, levelsSpent) {
+  const slot = itemSlot(item);
+  for (const { ids, chance } of ROLLS.filter((r) => r.slot === slot)) {
+    if (Math.random() >= (chance * levelsSpent) / 3) continue;
+    const id = ids[Math.floor(Math.random() * ids.length)];
+    const result = combine(item, { id, level: rollLevel(ENCHANTMENTS[id].maxLevel, levelsSpent) });
+    if (!result.error) setEnchants(item, result.enchants);
+  }
+}
+
+// Marks newly seen enchanted items. While an enchantment is pending, the first one is the item that
+// just came out of the table and gets a roll.
 function checkInventory(player, session) {
   const inventory = player.getComponent("minecraft:inventory")?.container;
   if (!inventory) return;
   for (let slot = 0; slot < inventory.size; slot++) {
     const item = inventory.getItem(slot);
-    if (!isWeapon(item) || item.getDynamicProperty(SEEN) || !isEnchanted(item)) continue;
+    if (!itemSlot(item) || item.getDynamicProperty(SEEN) || !isEnchanted(item)) continue;
     if (session.pendingTick !== undefined) {
       roll(item, session.levelsSpent);
       session.pendingTick = undefined;

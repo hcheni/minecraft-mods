@@ -283,27 +283,37 @@
       "entries": [
         {
           "type": "item",
-          "name": "enchmods:frost_aspect_book_1",
-          "weight": 3
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 200
         },
         {
           "type": "item",
-          "name": "enchmods:frost_aspect_book_2",
-          "weight": 1
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 133
         },
         {
           "type": "item",
-          "name": "enchmods:poison_aspect_book_1",
-          "weight": 3
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 67
         },
         {
           "type": "item",
-          "name": "enchmods:poison_aspect_book_2",
-          "weight": 1
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 200
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 133
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 67
         },
         {
           "type": "empty",
-          "weight": 32
+          "weight": 9200
         }
       ]
     }

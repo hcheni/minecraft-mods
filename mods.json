@@ -1,9 +1,9 @@
 [
   {
-    "file": "EnchantmentMods-v1.1.mcaddon",
+    "file": "EnchantmentMods-v1.2.mcaddon",
     "name": "Enchantment Mods",
-    "description": "Two new enchantments for swords, spears and maces. Frost Aspect freezes the target (slowness and freezing damage) and Poison Aspect poisons it, for 4 seconds per level, max level II. Find the books in dungeon, mineshaft, temple, stronghold, igloo, ancient city, mansion, End city and bastion chests, or get lucky at the enchanting table. To apply a book, hold it and tap an anvil, then pick the weapon. An item can have only one aspect, Fire Aspect included.",
-    "version": "1.1.0",
+    "description": "Six new enchantments. Weapons (swords, spears, maces): Frost Aspect freezes, Poison Aspect poisons and Weakening Touch weakens the target, and Strength Surge adds 15% damage per level while you are below half health. Armor: Protection Surge cuts damage by 6% per level while you are below half health, and Knockback Resistance cuts knockback by 8% per level. Find the books in trial vaults, ominous vaults, trial chamber chests, stronghold libraries and mansions, buy them from expert and master librarians, or roll them at the enchanting table. Hold a book and tap an anvil to apply it. Only one aspect per item, Fire Aspect included.",
+    "version": "1.2.0",
     "minecraft": "26.50+",
     "added": "2026-10-12",
     "tags": [

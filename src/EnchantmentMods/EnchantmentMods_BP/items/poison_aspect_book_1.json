@@ -3,11 +3,20 @@
   "minecraft:item": {
     "description": {
       "identifier": "enchmods:poison_aspect_book_1",
-      "menu_category": { "category": "equipment", "group": "minecraft:itemGroup.name.enchantedBook" }
+      "menu_category": {
+        "category": "equipment",
+        "group": "minecraft:itemGroup.name.enchantedBook"
+      }
     },
     "components": {
-      "minecraft:icon": { "textures": { "default": "enchmods_book" } },
-      "minecraft:display_name": { "value": "Enchanted Book\n§7Poison Aspect I" },
+      "minecraft:icon": {
+        "textures": {
+          "default": "enchmods_book"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Enchanted Book\n§7Poison Aspect I"
+      },
       "minecraft:glint": true,
       "minecraft:rarity": "uncommon",
       "minecraft:max_stack_size": 1

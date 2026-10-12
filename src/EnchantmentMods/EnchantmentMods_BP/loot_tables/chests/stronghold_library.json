@@ -73,27 +73,67 @@
       "entries": [
         {
           "type": "item",
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 200
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 133
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 67
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 200
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 133
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 67
+        },
+        {
+          "type": "item",
           "name": "enchmods:frost_aspect_book_1",
-          "weight": 3
+          "weight": 667
         },
         {
           "type": "item",
           "name": "enchmods:frost_aspect_book_2",
-          "weight": 1
+          "weight": 333
         },
         {
           "type": "item",
           "name": "enchmods:poison_aspect_book_1",
-          "weight": 3
+          "weight": 667
         },
         {
           "type": "item",
           "name": "enchmods:poison_aspect_book_2",
-          "weight": 1
+          "weight": 333
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_1",
+          "weight": 667
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_2",
+          "weight": 333
         },
         {
           "type": "empty",
-          "weight": 32
+          "weight": 6200
         }
       ]
     }
