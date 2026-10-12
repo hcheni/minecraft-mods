@@ -1,0 +1,17 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Enchantment Mods v1.0 (Resources)",
+    "description": "Textures and names for the Frost Aspect and Poison Aspect books.",
+    "uuid": "a81d2b3c-1d63-4557-b2d2-5ccd4c5d62a5",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 80]
+  },
+  "modules": [
+    {
+      "type": "resources",
+      "uuid": "8a19794e-60e8-47ff-93bf-161a3f0e9ea8",
+      "version": [1, 0, 0]
+    }
+  ]
+}

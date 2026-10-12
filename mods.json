@@ -1,5 +1,19 @@
 [
   {
+    "file": "EnchantmentMods-v1.0.mcaddon",
+    "name": "Enchantment Mods",
+    "description": "Two new enchantments for swords, spears and maces. Frost Aspect freezes the target (slowness and freezing damage) and Poison Aspect poisons it, for 4 seconds per level, max level II. Find the books in dungeon, mineshaft, temple, stronghold, igloo, ancient city, mansion, End city and bastion chests and use them on an anvil, or get lucky at the enchanting table. An item can have only one aspect, Fire Aspect included.",
+    "version": "1.0.0",
+    "minecraft": "26.50+",
+    "added": "2026-10-12",
+    "tags": [
+      "Enchantments",
+      "Combat",
+      "Items"
+    ],
+    "icon": "icons/enchantment-mods.svg"
+  },
+  {
     "file": "ArmorEffectsHUD-v1.9.mcaddon",
     "name": "Armor & Effects HUD",
     "description": "Shows your armor and off-hand item with real item icons (glinting when enchanted) and current durability, plus every potion effect with its icon and time remaining, on the left side of the screen. When you hit a player or mob, the damage it actually took (after armor and effects) floats up above it.",
