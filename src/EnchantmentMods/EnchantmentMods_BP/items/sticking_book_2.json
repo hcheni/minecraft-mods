@@ -2,7 +2,11 @@
   "format_version": "1.21.60",
   "minecraft:item": {
     "description": {
-      "identifier": "enchmods:sticking_book_2"
+      "identifier": "enchmods:sticking_book_2",
+      "menu_category": {
+        "category": "items",
+        "group": "minecraft:itemGroup.name.enchantedBook"
+      }
     },
     "components": {
       "minecraft:icon": {

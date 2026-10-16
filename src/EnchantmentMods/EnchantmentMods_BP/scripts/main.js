@@ -11,6 +11,7 @@ import "./reach.js";
 import "./alchemist.js";
 import "./table.js";
 import "./upkeep.js";
+import "./commands.js";
 
 // Hold one of our books and tap an anvil to choose what to use it on: an item in your inventory, which
 // gets every enchantment on the book that fits it (ours and vanilla), or another enchanted book, ours

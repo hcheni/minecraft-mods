@@ -2,7 +2,11 @@
   "format_version": "1.21.60",
   "minecraft:item": {
     "description": {
-      "identifier": "enchmods:reach_book_3"
+      "identifier": "enchmods:reach_book_3",
+      "menu_category": {
+        "category": "items",
+        "group": "minecraft:itemGroup.name.enchantedBook"
+      }
     },
     "components": {
       "minecraft:icon": {

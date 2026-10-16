@@ -1,29 +1,29 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Enchantment Mods v1.4 (Behavior)",
+    "name": "Enchantment Mods v1.5 (Behavior)",
     "description": "Adds 15 enchantments: six aspects, Strength Surge, Strength Amplifier, Zapping, Life Steal, Reach, Protection Surge, Knockback Protection, Alchemist and the Breaking curse.",
     "uuid": "747511b9-4715-4f08-9612-6c61d96c3a5e",
-    "version": [1, 4, 0],
+    "version": [1, 5, 0],
     "min_engine_version": [1, 21, 80]
   },
   "modules": [
     {
       "type": "data",
       "uuid": "5e04a7ef-00d3-49f6-a856-1c266dfb9849",
-      "version": [1, 4, 0]
+      "version": [1, 5, 0]
     },
     {
       "type": "script",
       "language": "javascript",
       "uuid": "c648b648-a33b-4be8-9bda-fe17a0877e57",
       "entry": "scripts/main.js",
-      "version": [1, 4, 0]
+      "version": [1, 5, 0]
     }
   ],
   "dependencies": [
     { "module_name": "@minecraft/server", "version": "2.10.0" },
     { "module_name": "@minecraft/server-ui", "version": "2.0.0" },
-    { "uuid": "a81d2b3c-1d63-4557-b2d2-5ccd4c5d62a5", "version": [1, 4, 0] }
+    { "uuid": "a81d2b3c-1d63-4557-b2d2-5ccd4c5d62a5", "version": [1, 5, 0] }
   ]
 }

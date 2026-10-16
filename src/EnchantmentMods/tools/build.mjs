@@ -78,8 +78,13 @@ for (const [id, ench] of Object.entries(ENCHANTMENTS)) {
     write(`items/${id}_book_${level}.json`, {
       format_version: "1.21.60",
       "minecraft:item": {
-        // No menu_category: item_catalog places the books.
-        description: { identifier },
+        // The category and group put the books with the vanilla enchanted books (v1.4 left them out
+        // and relied on item_catalog alone, and the books didn't show up); item_catalog then gives
+        // their order.
+        description: {
+          identifier,
+          menu_category: { category: "items", group: "minecraft:itemGroup.name.enchantedBook" },
+        },
         components: {
           "minecraft:icon": { textures: { default: "enchmods_book" } },
           "minecraft:display_name": { value: `Enchanted Book\n${ench.curse ? "§c" : "§7"}${enchantLabel(id, level)}` },
