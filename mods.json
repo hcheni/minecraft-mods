@@ -1,9 +1,9 @@
 [
   {
-    "file": "EnchantmentMods-v1.3.mcaddon",
+    "file": "EnchantmentMods-v1.4.mcaddon",
     "name": "Enchantment Mods",
-    "description": "Ten new enchantments. Weapons: Frost, Poison and Wither Aspect and Weakening Touch, Strength Surge (more damage below half health), Zapping (chain lightning between nearby mobs, swords) and Life Steal (heal on kills). Armor: Protection Surge (less damage below half health) and Knockback Protection. And the Breaking curse, which wears items out faster. Find the books in trial and ominous vaults, trial chambers, strongholds, mansions, temples, outposts, ancient cities and ocean ruins, buy them from librarians, roll them at the enchanting table, or find them on mob gear and vault and End city loot. Hold a book and tap an anvil to apply it.",
-    "version": "1.3.0",
+    "description": "15 new enchantments that work like vanilla ones. Weapons: six aspects (Frostbite, Venom, Withering, Weakening Touch, Sticking, Target), Strength Surge, Zapping chain lightning, and the mansion-only Life Steal and Strength Amplifier. Tools and weapons: Reach. Armor: Protection Surge, Knockback Protection and Alchemist (longer potions). Plus the Breaking curse. Find the books wherever vanilla enchanted books turn up (structure chests, fishing, librarians), or roll them at the enchanting table. Hold a book and tap an anvil to enchant an item or combine it with another book, vanilla or custom.",
+    "version": "1.4.0",
     "minecraft": "26.50+",
     "added": "2026-10-12",
     "tags": [

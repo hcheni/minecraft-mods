@@ -1,0 +1,21 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:item": {
+    "description": {
+      "identifier": "enchmods:strength_amplifier_book_3"
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "enchmods_book"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Enchanted Book\n§7Strength Amplifier III"
+      },
+      "minecraft:glint": true,
+      "minecraft:rarity": "uncommon",
+      "minecraft:max_stack_size": 1
+    }
+  }
+}

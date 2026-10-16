@@ -9,53 +9,228 @@
         {
           "type": "item",
           "name": "minecraft:lead",
-          "weight": 100
+          "weight": 100000
         },
         {
           "type": "item",
           "name": "minecraft:golden_apple",
-          "weight": 75
+          "weight": 75000
         },
         {
           "type": "item",
           "name": "minecraft:appleEnchanted",
-          "weight": 10
+          "weight": 10000
         },
         {
           "type": "item",
           "name": "minecraft:record_13",
-          "weight": 75
+          "weight": 75000
         },
         {
           "type": "item",
           "name": "minecraft:record_cat",
-          "weight": 75
+          "weight": 75000
         },
         {
           "type": "item",
           "name": "minecraft:chainmail_chestplate",
-          "weight": 50
+          "weight": 50000
         },
         {
           "type": "item",
           "name": "minecraft:diamond_hoe",
-          "weight": 75
+          "weight": 75000
         },
         {
           "type": "item",
           "name": "minecraft:diamond_chestplate",
-          "weight": 25
+          "weight": 25000
         },
         {
           "type": "item",
           "name": "minecraft:book",
-          "weight": 60,
+          "weight": 45000,
           "functions": [
             {
               "function": "enchant_randomly",
               "treasure": true
             }
           ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_1",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_2",
+          "weight": 577
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_3",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_1",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_2",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_3",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_1",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_2",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_3",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_4",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_1",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_2",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_3",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_4",
+          "weight": 288
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_1",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_2",
+          "weight": 385
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_3",
+          "weight": 385
         }
       ]
     },
@@ -283,52 +458,46 @@
       "entries": [
         {
           "type": "item",
-          "name": "enchmods:strength_surge_book_1",
-          "weight": 200
+          "name": "enchmods:life_steal_book_1",
+          "weight": 17
         },
         {
           "type": "item",
-          "name": "enchmods:strength_surge_book_2",
-          "weight": 133
+          "name": "enchmods:life_steal_book_2",
+          "weight": 17
         },
         {
           "type": "item",
-          "name": "enchmods:strength_surge_book_3",
-          "weight": 67
-        },
-        {
-          "type": "item",
-          "name": "enchmods:protection_surge_book_1",
-          "weight": 200
-        },
-        {
-          "type": "item",
-          "name": "enchmods:protection_surge_book_2",
-          "weight": 133
-        },
-        {
-          "type": "item",
-          "name": "enchmods:protection_surge_book_3",
-          "weight": 67
-        },
-        {
-          "type": "item",
-          "name": "enchmods:zapping_book_1",
-          "weight": 200
-        },
-        {
-          "type": "item",
-          "name": "enchmods:zapping_book_2",
-          "weight": 133
-        },
-        {
-          "type": "item",
-          "name": "enchmods:zapping_book_3",
-          "weight": 67
+          "name": "enchmods:life_steal_book_3",
+          "weight": 17
         },
         {
           "type": "empty",
-          "weight": 8800
+          "weight": 949
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "enchmods:strength_amplifier_book_1",
+          "weight": 17
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_amplifier_book_2",
+          "weight": 17
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_amplifier_book_3",
+          "weight": 17
+        },
+        {
+          "type": "empty",
+          "weight": 949
         }
       ]
     }

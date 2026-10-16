@@ -66,12 +66,12 @@
         {
           "type": "item",
           "name": "minecraft:golden_apple",
-          "weight": 1
+          "weight": 1000
         },
         {
           "type": "item",
           "name": "minecraft:book",
-          "weight": 5,
+          "weight": 3723,
           "functions": [
             {
               "function": "enchant_randomly"
@@ -80,18 +80,178 @@
         },
         {
           "type": "item",
+          "name": "enchmods:frost_aspect_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_3",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_1",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_2",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_3",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 35
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_1",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_2",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_3",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_4",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_1",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_2",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_3",
+          "weight": 27
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_4",
+          "weight": 27
+        },
+        {
+          "type": "item",
           "name": "minecraft:leather_chestplate",
-          "weight": 1
+          "weight": 1000
         },
         {
           "type": "item",
           "name": "minecraft:golden_helmet",
-          "weight": 1
+          "weight": 1000
         },
         {
           "type": "item",
           "name": "minecraft:fishing_rod",
-          "weight": 5,
+          "weight": 5000,
           "functions": [
             {
               "function": "enchant_randomly"
@@ -101,7 +261,7 @@
         {
           "type": "item",
           "name": "minecraft:map",
-          "weight": 10,
+          "weight": 10000,
           "functions": [
             {
               "function": "exploration_map",
@@ -139,50 +299,6 @@
           "type": "item",
           "name": "minecraft:diamond_nautilus_armor",
           "weight": 10
-        }
-      ]
-    },
-    {
-      "rolls": 1,
-      "entries": [
-        {
-          "type": "item",
-          "name": "enchmods:knockback_protection_book_1",
-          "weight": 160
-        },
-        {
-          "type": "item",
-          "name": "enchmods:knockback_protection_book_2",
-          "weight": 120
-        },
-        {
-          "type": "item",
-          "name": "enchmods:knockback_protection_book_3",
-          "weight": 80
-        },
-        {
-          "type": "item",
-          "name": "enchmods:knockback_protection_book_4",
-          "weight": 40
-        },
-        {
-          "type": "item",
-          "name": "enchmods:breaking_book_1",
-          "weight": 500
-        },
-        {
-          "type": "item",
-          "name": "enchmods:breaking_book_2",
-          "weight": 333
-        },
-        {
-          "type": "item",
-          "name": "enchmods:breaking_book_3",
-          "weight": 167
-        },
-        {
-          "type": "empty",
-          "weight": 8600
         }
       ]
     }

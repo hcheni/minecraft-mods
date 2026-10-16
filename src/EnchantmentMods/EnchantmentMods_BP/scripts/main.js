@@ -1,22 +1,26 @@
 import { world, system, GameMode } from "@minecraft/server";
 import { ActionFormData, FormCancelationReason } from "@minecraft/server-ui";
-import { ENCHANTMENTS, canGoOn, enchantLabel } from "./enchantments.js";
-import { bookEnchant, combine, itemName, setEnchants } from "./items.js";
-import { applyBookExtras, getBookExtras, rollBookExtras } from "./rolls.js";
+import { ENCHANTMENTS, enchantLabel, itemKind } from "./enchantments.js";
+import {
+  addedLabels, bookEnchant, combineBooks, getEnchants, getVanilla, isBook, itemName, makeBook, planApply,
+  vanillaLabel, writePlan,
+} from "./items.js";
 import "./effects.js";
 import "./breaking.js";
+import "./reach.js";
+import "./alchemist.js";
 import "./table.js";
-import "./mobs.js";
 import "./upkeep.js";
 
-// Use one of our books on an anvil to pick an item from your inventory to enchant. The vanilla anvil
-// screen can't take custom books, so the anvil opens this menu instead. Armor you're wearing isn't
-// listed: take it off to enchant it.
+// Hold one of our books and tap an anvil to choose what to use it on: an item in your inventory, which
+// gets every enchantment on the book that fits it (ours and vanilla), or another enchanted book, ours
+// or vanilla, to combine the two into one. The vanilla anvil screen can't take our books, so the anvil
+// opens this menu instead. Armor you're wearing isn't listed: take it off to enchant it.
 
 const ANVILS = new Set(["minecraft:anvil", "minecraft:chipped_anvil", "minecraft:damaged_anvil"]);
 
-function cost(player, book, level) {
-  return player.getGameMode() === GameMode.Creative ? 0 : level * ENCHANTMENTS[book.id].anvilCost;
+function cost(player, plan) {
+  return player.getGameMode() === GameMode.Creative ? 0 : plan.cost;
 }
 
 async function showForm(player, form) {
@@ -29,36 +33,50 @@ async function showForm(player, form) {
   return undefined;
 }
 
+function plan(target, book) {
+  return isBook(target) ? combineBooks(target, book) : planApply(target, book);
+}
+
+// "Book: Zapping I, Sharpness IV +2"
+function bookName(item) {
+  const custom = getEnchants(item);
+  const vanilla = getVanilla(item);
+  const labels = [
+    ...Object.keys(ENCHANTMENTS).filter((id) => custom[id]).map((id) => enchantLabel(id, custom[id])),
+    ...Object.entries(vanilla).map(([id, level]) => vanillaLabel(id, level)),
+  ];
+  const more = labels.length > 2 ? ` +${labels.length - 2}` : "";
+  return `Book: ${labels.slice(0, 2).join(", ") || "empty"}${more}`;
+}
+
 async function openMenu(player) {
   const inventory = player.getComponent("minecraft:inventory").container;
   const bookSlot = player.selectedSlotIndex;
   const bookItem = inventory.getItem(bookSlot);
-  const book = bookEnchant(bookItem);
-  if (!book) return;
-  if (rollBookExtras(bookItem)) inventory.setItem(bookSlot, bookItem);
-  const ench = ENCHANTMENTS[book.id];
+  if (!bookEnchant(bookItem)) return;
 
   const choices = [];
   for (let slot = 0; slot < inventory.size; slot++) {
+    if (slot === bookSlot) continue;
     const item = inventory.getItem(slot);
-    if (item && canGoOn(book.id, item.typeId)) choices.push({ slot, typeId: item.typeId, name: itemName(item), ...combine(item, book) });
+    if (!item || (!isBook(item) && !itemKind(item.typeId))) continue;
+    const result = plan(item, bookItem);
+    // Leave out items nothing on the book could ever go on.
+    if (result.error && !isBook(item) && /can't go on this|Nothing on this book/.test(result.error)) continue;
+    choices.push({ slot, typeId: item.typeId, name: isBook(item) ? bookName(item) : itemName(item), ...result });
   }
   if (choices.length === 0) {
-    player.sendMessage(`§cYou have nothing ${ench.name} can go on in your inventory. Armor you're wearing has to come off first.`);
+    player.sendMessage("§cNothing in your inventory can take this book. Armor you're wearing has to come off first.");
     return;
   }
 
   const form = new ActionFormData()
-    .title(`Apply ${enchantLabel(book.id, book.level)}`)
-    .body(
-      ench.aspect
-        ? "Choose an item. Each item can have only one aspect, and Fire Aspect counts as one."
-        : "Choose an item."
-    );
+    .title("Use Enchanted Book")
+    .body("Choose an item to enchant, or a book to combine with. Each item can have only one aspect, and Fire Aspect counts as one.");
   for (const choice of choices) {
     const detail = choice.error
       ? `§c${choice.error}`
-      : `§8${enchantLabel(book.id, choice.level)} · ${cost(player, book, choice.level)} levels`;
+      : `§8${addedLabels(choice.added).join(", ")} · ${cost(player, choice)} levels`;
     form.button(`${choice.name}\n${detail}`);
   }
 
@@ -71,28 +89,31 @@ async function openMenu(player) {
   }
 
   // The inventory may have changed while the menu was open.
-  const item = inventory.getItem(choice.slot);
-  const currentBook = inventory.getItem(bookSlot);
-  if (currentBook?.typeId !== bookItem.typeId || item?.typeId !== choice.typeId) return;
-  const result = combine(item, book);
+  const target = inventory.getItem(choice.slot);
+  const book = inventory.getItem(bookSlot);
+  if (book?.typeId !== bookItem.typeId || target?.typeId !== choice.typeId) return;
+  const result = plan(target, book);
   if (result.error) {
     player.sendMessage(`§c${choice.name}: ${result.error}.`);
     return;
   }
-  const levels = cost(player, book, result.level);
+  const levels = cost(player, result);
   if (player.level < levels) {
-    player.sendMessage(`§cYou need ${levels} levels to apply ${enchantLabel(book.id, result.level)}.`);
+    player.sendMessage(`§cYou need ${levels} levels for that.`);
     return;
   }
 
-  setEnchants(item, result.enchants);
-  const extras = applyBookExtras(item, getBookExtras(currentBook));
-  inventory.setItem(choice.slot, item);
+  if (isBook(target)) {
+    inventory.setItem(choice.slot, makeBook(result));
+  } else {
+    writePlan(target, result);
+    inventory.setItem(choice.slot, target);
+  }
   inventory.setItem(bookSlot);
   if (levels > 0) player.addLevels(-levels);
   player.playSound("random.anvil_use");
-  const all = [enchantLabel(book.id, result.level), ...extras].join(", ");
-  player.sendMessage(`§aYour ${itemName(item)} now has ${all}.`);
+  const what = isBook(target) ? "The combined book" : `Your ${itemName(target)}`;
+  player.sendMessage(`§a${what} now has ${addedLabels(result.added).join(", ")}.`);
 }
 
 // The vanilla anvil screen can't combine our books, so anyone opening it with one in their inventory
@@ -104,11 +125,10 @@ function showTip(player) {
   const inventory = player.getComponent("minecraft:inventory")?.container;
   if (!inventory) return;
   for (let slot = 0; slot < inventory.size; slot++) {
-    const book = bookEnchant(inventory.getItem(slot));
-    if (!book) continue;
+    if (!bookEnchant(inventory.getItem(slot))) continue;
     tipped.add(player.id);
     player.sendMessage(
-      `§eThe anvil screen can't combine ${ENCHANTMENTS[book.id].name} books. Close it, hold the book in your hand and tap the anvil to choose an item.`
+      "§eThe anvil screen can't use Enchantment Mods books. Close it, hold the book in your hand and tap the anvil to choose an item or another book."
     );
     return;
   }

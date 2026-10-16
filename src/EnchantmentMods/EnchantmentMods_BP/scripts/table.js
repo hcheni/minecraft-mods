@@ -1,8 +1,16 @@
 import { world, system } from "@minecraft/server";
-import { ENCHANTMENTS, canGoOn } from "./enchantments.js";
-import { addRandomEnchant } from "./rolls.js";
+import { ENCHANTMENTS, LIKE_VANILLA, itemKind } from "./enchantments.js";
+import { conflictIn, getEnchants, getVanilla, isVanillaBook, makeBook, setEnchants, vanillaMax } from "./items.js";
+import { pickWeighted } from "./rolls.js";
+import { VANILLA } from "./vanilla.js";
 
-// Enchanting a weapon or a piece of armor at an enchanting table can also give it our enchantments.
+// Our enchantments at the enchanting table, by weight, as if the table knew them.
+//
+// The table picks each enchantment by weight from those that fit the item. Scripts can't add to that
+// list, so after the table has done its work we go over what it picked: each vanilla enchantment is
+// swapped for one of ours with the chance our weights have against vanilla's for that kind of item
+// (for a sword: our weapon enchantments against Sharpness, Smite, Knockback…). Books work the same,
+// with every enchantment in the running. The level follows how high the vanilla one rolled.
 //
 // Scripts get no event for enchanting, so we watch players who just used a table: when their XP level
 // drops (they paid for an enchantment) and a newly enchanted item shows up in their inventory, that's
@@ -15,18 +23,59 @@ const SESSION_RANGE = 8; // blocks from the table
 const SESSION_TICKS = 6000; // 5 minutes without touching the table again
 const PENDING_TICKS = 600; // the enchanted item has 30 seconds to come out of the table
 
-// Each roll can add one enchantment from its list to an item it fits. The chance is for the 3-level
-// option; the 1- and 2-level options get a third and two thirds of it, and lower top levels.
-// maxLevel caps what the table can give. Life Steal and Breaking never come from the table.
-const ROLLS = [
-  { ids: ["frost_aspect", "poison_aspect", "weakening_touch", "wither_aspect"], chance: 0.15 },
-  { ids: ["strength_surge"], chance: 0.04 },
-  { ids: ["zapping"], chance: 0.01, maxLevel: 2 },
-  { ids: ["knockback_protection"], chance: 0.15 },
-  { ids: ["protection_surge"], chance: 0.04 },
-];
+// Ours the table can give: not the mansion-only ones, and not curses (vanilla's table never gives one).
+const TABLE_CUSTOM = LIKE_VANILLA.filter((id) => !ENCHANTMENTS[id].curse);
 
-const sessions = new Map(); // player.id -> { player, location, dimensionId, startTick, level, pendingTick, levelsSpent }
+const sessions = new Map(); // player.id -> { player, location, dimensionId, startTick, level, pendingTick }
+
+function fits(items, kind) {
+  return kind === "book" || items.includes(kind);
+}
+
+function kindOf(item) {
+  return isVanillaBook(item) ? "book" : itemKind(item.typeId);
+}
+
+function canRoll(item) {
+  const kind = kindOf(item);
+  return !!kind && TABLE_CUSTOM.some((id) => fits(ENCHANTMENTS[id].items, kind));
+}
+
+// Returns the item to put back, or undefined if nothing changed.
+export function swapIn(item) {
+  const kind = kindOf(item);
+  const ours = TABLE_CUSTOM.filter((id) => fits(ENCHANTMENTS[id].items, kind));
+  const vanillaWeight = Object.entries(VANILLA)
+    .filter(([, v]) => !v.treasure && fits(v.items, kind))
+    .reduce((sum, [, v]) => sum + v.weight, 0);
+  const ourWeight = ours.reduce((sum, id) => sum + ENCHANTMENTS[id].weight, 0);
+  const chance = ourWeight / (ourWeight + vanillaWeight);
+
+  const set = { custom: getEnchants(item), vanilla: getVanilla(item) };
+  const swapped = [];
+  for (const [id, level] of Object.entries(set.vanilla)) {
+    if (Math.random() >= chance) continue;
+    const vanilla = { ...set.vanilla };
+    delete vanilla[id];
+    const options = ours
+      .filter((o) => !set.custom[o] && !conflictIn({ ...set.custom, [o]: 1 }, vanilla))
+      .map((o) => ({ id: o, weight: ENCHANTMENTS[o].weight }));
+    if (!options.length) continue;
+    const pick = pickWeighted(options).id;
+    const ench = ENCHANTMENTS[pick];
+    const top = Math.min(ench.maxLevel, ench.tableMaxLevel ?? ench.maxLevel);
+    set.vanilla = vanilla;
+    set.custom = { ...set.custom, [pick]: Math.max(1, Math.min(top, Math.round((level / vanillaMax(id)) * top))) };
+    swapped.push(id);
+  }
+  if (!swapped.length) return undefined;
+
+  if (kind === "book") return makeBook(set);
+  const enchantable = item.getComponent("minecraft:enchantable");
+  for (const id of swapped) enchantable.removeEnchantment(id);
+  setEnchants(item, set.custom);
+  return item;
+}
 
 function isEnchanted(item) {
   try {
@@ -36,32 +85,16 @@ function isEnchanted(item) {
   }
 }
 
-function canRoll(item) {
-  return ROLLS.some(({ ids }) => ids.some((id) => canGoOn(id, item.typeId)));
-}
-
-function roll(item, levelsSpent) {
-  for (const { ids, chance, maxLevel } of ROLLS) {
-    if (!ids.some((id) => canGoOn(id, item.typeId))) continue;
-    if (Math.random() >= (chance * levelsSpent) / 3) continue;
-    // The top levels need the 3-level option.
-    const caps = Object.fromEntries(
-      ids.map((id) => [id, Math.max(1, Math.ceil((Math.min(ENCHANTMENTS[id].maxLevel, maxLevel ?? 9) * levelsSpent) / 3))])
-    );
-    addRandomEnchant(item, ids, caps);
-  }
-}
-
 // Marks newly seen enchanted items. While an enchantment is pending, the first one is the item that
-// just came out of the table and gets a roll.
+// just came out of the table and gets its roll.
 function checkInventory(player, session) {
   const inventory = player.getComponent("minecraft:inventory")?.container;
   if (!inventory) return;
   for (let slot = 0; slot < inventory.size; slot++) {
-    const item = inventory.getItem(slot);
+    let item = inventory.getItem(slot);
     if (!item || !canRoll(item) || item.getDynamicProperty(SEEN) || !isEnchanted(item)) continue;
     if (session.pendingTick !== undefined) {
-      roll(item, session.levelsSpent);
+      item = swapIn(item) ?? item;
       session.pendingTick = undefined;
     }
     item.setDynamicProperty(SEEN, true);
@@ -77,7 +110,6 @@ function startSession(player, block) {
     startTick: system.currentTick,
     level: player.level,
     pendingTick: undefined,
-    levelsSpent: 0,
   };
   sessions.set(player.id, session);
   checkInventory(player, session);
@@ -96,10 +128,7 @@ function tickSession(id, session) {
     sessions.delete(id);
     return;
   }
-  if (player.level < session.level) {
-    session.pendingTick = now;
-    session.levelsSpent = Math.min(3, session.level - player.level);
-  }
+  if (player.level < session.level) session.pendingTick = now;
   session.level = player.level;
   if (session.pendingTick !== undefined && now - session.pendingTick > PENDING_TICKS) session.pendingTick = undefined;
   checkInventory(player, session);

@@ -1,107 +1,92 @@
-import { EnchantmentTypes } from "@minecraft/server";
-import { ENCHANTMENTS, LOOT_MARKERS, ROMAN, canGoOn } from "./enchantments.js";
-import { bookEnchant, combine, getEnchants, hasVanilla, setEnchants, vanillaName } from "./items.js";
+import { ENCHANTMENTS, LIKE_VANILLA, LOOT_MARKERS, MULTI_POWER } from "./enchantments.js";
+import { bookEnchant, conflictIn, getEnchants, getVanilla, isVanillaBook, makeBook, vanillaMax } from "./items.js";
+import { RANDOM_VANILLA } from "./vanilla.js";
 
-// Random enchantments: for the enchanting table, mob gear, vault and End city loot, and the extra
-// vanilla enchantments a Breaking book can carry.
+// Random enchantments for found books.
+//
+// Loot that makes books at enchanting power 30 (jungle temples, strongholds, fishing) can give vanilla
+// books more than one enchantment. Our books found there, and the vanilla books themselves, get extra
+// enchantments with the same odds vanilla uses: after the first, another is added with chance
+// (power + 1) / 50, and the power halves each time (about 64% for a second one at power 30).
 
-const ALL = Object.keys(ENCHANTMENTS);
-const LOOT_ROLLS = {
-  end_city: { chance: 0.35, ids: ALL },
-  trial_vault: { chance: 0.35, ids: ALL.filter((id) => !["strength_surge", "protection_surge", "life_steal", "zapping"].includes(id)) },
-  ominous_vault: { chance: 0.35, ids: ALL },
-};
+// Ours that can turn up as an extra: everything but the mansion-only ones.
+const EXTRA_CUSTOM = LIKE_VANILLA;
+// v1.3 marked vault and End city gear this way; those lines are just removed now.
+const OLD_MARKERS = ["§e§m§1", "§e§m§2", "§e§m§3"];
 
-// Lower levels are more likely: level k of n has weight n - k + 1.
-export function rollLevel(maxLevel) {
-  const weights = Array.from({ length: maxLevel }, (_, i) => maxLevel - i);
-  let pick = Math.random() * weights.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < maxLevel; i++) {
-    pick -= weights[i];
-    if (pick < 0) return i + 1;
-  }
-  return 1;
+export function randomLevel(max) {
+  return 1 + Math.floor(Math.random() * max);
 }
 
-// Adds one random enchantment from ids that the item can take. caps limits levels: { zapping: 2 }.
-// Returns the id added, or undefined.
-export function addRandomEnchant(item, ids, caps = {}) {
-  const candidates = ids.filter((id) => canGoOn(id, item.typeId));
+export function pickWeighted(entries) {
+  let pick = Math.random() * entries.reduce((sum, e) => sum + e.weight, 0);
+  for (const entry of entries) {
+    pick -= entry.weight;
+    if (pick < 0) return entry;
+  }
+  return entries.at(-1);
+}
+
+// How many extra enchantments a book made at this power gets.
+export function extraCount(power = MULTI_POWER) {
+  let level = Math.round((power + 1) * (1 + (Math.random() + Math.random() - 1) * 0.15));
+  let count = 0;
+  while (Math.random() * 50 < level + 1) {
+    count++;
+    level = Math.floor(level / 2);
+  }
+  return count;
+}
+
+// Adds one random enchantment (any of ours that can be found, or any random-loot vanilla one) that
+// isn't on the set yet and doesn't clash with it. customOnly limits it to ours.
+export function addRandomExtra(set, customOnly = false) {
+  const candidates = [
+    ...EXTRA_CUSTOM.filter((id) => !set.custom[id]).map((id) => ({ custom: true, id })),
+    ...(customOnly ? [] : RANDOM_VANILLA.filter((id) => !set.vanilla[id]).map((id) => ({ custom: false, id }))),
+  ];
   while (candidates.length) {
-    const [id] = candidates.splice(Math.floor(Math.random() * candidates.length), 1);
-    const result = combine(item, { id, level: rollLevel(Math.min(ENCHANTMENTS[id].maxLevel, caps[id] ?? 9)) });
-    if (result.error) continue;
-    setEnchants(item, result.enchants);
-    return id;
+    const [pick] = candidates.splice(Math.floor(Math.random() * candidates.length), 1);
+    const custom = { ...set.custom };
+    const vanilla = { ...set.vanilla };
+    if (pick.custom) custom[pick.id] = randomLevel(ENCHANTMENTS[pick.id].maxLevel);
+    else vanilla[pick.id] = randomLevel(vanillaMax(pick.id));
+    if (conflictIn(custom, vanilla)) continue;
+    set.custom = custom;
+    set.vanilla = vanilla;
+    return true;
   }
-  return undefined;
+  return false;
 }
 
-// Swaps a loot marker for (maybe) a random enchantment. Returns true if the item changed.
+// Acts on a loot marker. Returns the item to put back (maybe a new one), or undefined if the item
+// has no marker.
 export function resolveLootMarker(item) {
-  const lore = item.getLore();
-  const source = Object.keys(LOOT_MARKERS).find((key) => lore.includes(LOOT_MARKERS[key]));
-  if (!source) return false;
-  item.setLore(lore.filter((line) => !Object.values(LOOT_MARKERS).includes(line)));
-  const { chance, ids } = LOOT_ROLLS[source];
-  if (Math.random() < chance) addRandomEnchant(item, ids);
-  return true;
-}
-
-// A Breaking book can come with low-level vanilla enchantments too, rolled the first time anyone
-// sees the book and kept as a dynamic property plus lore lines.
-const EXTRAS = "enchmods:extras";
-const EXTRA_CHANCE = [0.4, 0.15]; // one extra, then a second
-const EXTRA_POOL = [
-  "protection", "fire_protection", "feather_falling", "blast_protection", "projectile_protection", "respiration",
-  "aqua_affinity", "thorns", "depth_strider", "sharpness", "smite", "bane_of_arthropods", "knockback", "looting",
-  "efficiency", "fortune", "power", "punch", "flame", "luck_of_the_sea", "lure", "loyalty", "impaling",
-  "riptide", "multishot", "quick_charge", "piercing", "density", "breach", "wind_burst",
-];
-
-export function rollBookExtras(book) {
-  if (!ENCHANTMENTS[bookEnchant(book)?.id]?.curse || book.getDynamicProperty(EXTRAS) !== undefined) return false;
-  const extras = [];
-  for (const chance of EXTRA_CHANCE) {
-    if (Math.random() >= chance) break;
-    const choices = EXTRA_POOL.filter((id) => !extras.some((e) => e.id === id) && EnchantmentTypes.get(id));
-    const id = choices[Math.floor(Math.random() * choices.length)];
-    const maxLevel = EnchantmentTypes.get(id).maxLevel;
-    extras.push({ id, level: maxLevel >= 4 ? Math.ceil(Math.random() * 2) : 1 });
-  }
-  book.setDynamicProperty(EXTRAS, JSON.stringify(extras));
-  if (extras.length) {
-    book.setLore([...extras.map((e) => `§r§7${vanillaName(e.id)}${EnchantmentTypes.get(e.id).maxLevel > 1 ? ` ${ROMAN[e.level]}` : ""}`), ...book.getLore()]);
-  }
-  return true;
-}
-
-export function getBookExtras(book) {
+  let lore;
   try {
-    return JSON.parse(book.getDynamicProperty(EXTRAS) ?? "[]");
+    lore = item.getLore();
   } catch {
-    return [];
+    return undefined;
   }
-}
+  if (lore.some((line) => OLD_MARKERS.includes(line))) {
+    item.setLore(lore.filter((line) => !OLD_MARKERS.includes(line)));
+    return item;
+  }
+  const marker = Object.values(LOOT_MARKERS).find((m) => lore.includes(m));
+  if (!marker) return undefined;
+  const set = { custom: getEnchants(item), vanilla: getVanilla(item) };
+  const extras = extraCount();
 
-// Adds the book's extra vanilla enchantments that the item can take (like the vanilla anvil, the
-// others are skipped, including ones that clash with our enchantments). Returns the names added.
-export function applyBookExtras(item, extras) {
-  const enchantable = item.getComponent("minecraft:enchantable");
-  if (!enchantable) return [];
-  const blocked = Object.keys(getEnchants(item)).flatMap((id) => ENCHANTMENTS[id]?.vanillaConflicts ?? []);
-  const added = [];
-  for (const { id, level } of extras) {
-    const type = EnchantmentTypes.get(id);
-    if (!type || hasVanilla(item, id) || blocked.includes(id)) continue;
-    const enchantment = { type, level };
-    try {
-      if (!enchantable.canAddEnchantment(enchantment)) continue;
-      enchantable.addEnchantment(enchantment);
-      added.push(`${vanillaName(id)}${type.maxLevel > 1 ? ` ${ROMAN[level]}` : ""}`);
-    } catch {
-      // Not compatible with this item after all.
-    }
+  if (marker === LOOT_MARKERS.custom_book && bookEnchant(item)) {
+    for (let i = 0; i < extras; i++) addRandomExtra(set);
+    return makeBook(set);
   }
-  return added;
+  if (marker === LOOT_MARKERS.vanilla_book && isVanillaBook(item) && extras > 0) {
+    // The first extra is one of ours; any more can be ours or vanilla.
+    addRandomExtra(set, true);
+    for (let i = 1; i < extras; i++) addRandomExtra(set);
+    return makeBook(set);
+  }
+  item.setLore(lore.filter((line) => line !== marker));
+  return item;
 }

@@ -1,0 +1,677 @@
+{
+  "pools": [
+    {
+      "rolls": {
+        "min": 2,
+        "max": 3
+      },
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:ender_pearl",
+          "weight": 50000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:emerald",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 15000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:diamond",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 15000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_ingot",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 5
+              }
+            }
+          ],
+          "weight": 50000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:gold_ingot",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:redstone",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 4,
+                "max": 9
+              }
+            }
+          ],
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:bread",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 75000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:apple",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 75000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_pickaxe",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_sword",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_chestplate",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_helmet",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_leggings",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_boots",
+          "weight": 25000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:golden_apple",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:leather",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 5
+              },
+              "add": false
+            }
+          ],
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:horsearmoriron",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:copper_horse_armor",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:horsearmorgold",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:horsearmordiamond",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:record_otherside",
+          "weight": 5000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:book",
+          "weight": 4888,
+          "functions": [
+            {
+              "function": "enchant_with_levels",
+              "levels": 30,
+              "treasure": true
+            },
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§v"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_3",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_1",
+          "weight": 22,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_2",
+          "weight": 22,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_3",
+          "weight": 22,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_1",
+          "weight": 42,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_2",
+          "weight": 42,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_3",
+          "weight": 42,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_4",
+          "weight": 42,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_1",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_2",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_3",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_4",
+          "weight": 34,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_1",
+          "weight": 11,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_2",
+          "weight": 11,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:breaking_book_3",
+          "weight": 11,
+          "functions": [
+            {
+              "function": "set_lore",
+              "lore": [
+                "§e§m§c"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "empty",
+          "weight": 9
+        },
+        {
+          "type": "item",
+          "name": "minecraft:eye_armor_trim_smithing_template",
+          "weight": 1
+        }
+      ]
+    }
+  ]
+}

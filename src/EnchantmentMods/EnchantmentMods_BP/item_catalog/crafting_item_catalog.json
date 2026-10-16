@@ -1,0 +1,60 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:crafting_items_catalog": {
+    "categories": [
+      {
+        "category_name": "items",
+        "groups": [
+          {
+            "group_identifier": {
+              "name": "minecraft:itemGroup.name.enchantedBook"
+            },
+            "items": [
+              "enchmods:frost_aspect_book_1",
+              "enchmods:frost_aspect_book_2",
+              "enchmods:poison_aspect_book_1",
+              "enchmods:poison_aspect_book_2",
+              "enchmods:weakening_touch_book_1",
+              "enchmods:weakening_touch_book_2",
+              "enchmods:wither_aspect_book_1",
+              "enchmods:wither_aspect_book_2",
+              "enchmods:sticking_book_1",
+              "enchmods:sticking_book_2",
+              "enchmods:target_book_1",
+              "enchmods:target_book_2",
+              "enchmods:strength_surge_book_1",
+              "enchmods:strength_surge_book_2",
+              "enchmods:strength_surge_book_3",
+              "enchmods:strength_amplifier_book_1",
+              "enchmods:strength_amplifier_book_2",
+              "enchmods:strength_amplifier_book_3",
+              "enchmods:zapping_book_1",
+              "enchmods:zapping_book_2",
+              "enchmods:zapping_book_3",
+              "enchmods:life_steal_book_1",
+              "enchmods:life_steal_book_2",
+              "enchmods:life_steal_book_3",
+              "enchmods:reach_book_1",
+              "enchmods:reach_book_2",
+              "enchmods:reach_book_3",
+              "enchmods:protection_surge_book_1",
+              "enchmods:protection_surge_book_2",
+              "enchmods:protection_surge_book_3",
+              "enchmods:knockback_protection_book_1",
+              "enchmods:knockback_protection_book_2",
+              "enchmods:knockback_protection_book_3",
+              "enchmods:knockback_protection_book_4",
+              "enchmods:alchemist_book_1",
+              "enchmods:alchemist_book_2",
+              "enchmods:alchemist_book_3",
+              "enchmods:alchemist_book_4",
+              "enchmods:breaking_book_1",
+              "enchmods:breaking_book_2",
+              "enchmods:breaking_book_3"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,464 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:golden_apple",
+          "weight": 20000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:appleEnchanted",
+          "weight": 1000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:name_tag",
+          "weight": 30000
+        },
+        {
+          "type": "item",
+          "name": "minecraft:book",
+          "weight": 7447,
+          "functions": [
+            {
+              "function": "enchant_randomly"
+            }
+          ]
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:frost_aspect_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:poison_aspect_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:weakening_touch_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:wither_aspect_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:sticking_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_1",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:target_book_2",
+          "weight": 106
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_1",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_2",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:strength_surge_book_3",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_1",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_2",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:zapping_book_3",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_1",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_2",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:reach_book_3",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_1",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_2",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:protection_surge_book_3",
+          "weight": 71
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_3",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:knockback_protection_book_4",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_1",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_2",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_3",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "enchmods:alchemist_book_4",
+          "weight": 53
+        },
+        {
+          "type": "item",
+          "name": "minecraft:iron_pickaxe",
+          "weight": 5000
+        },
+        {
+          "type": "empty",
+          "weight": 5000
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "min": 2,
+        "max": 4
+      },
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:iron_ingot",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 5
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:gold_ingot",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:redstone",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 4,
+                "max": 9
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:dye",
+          "functions": [
+            {
+              "function": "set_data",
+              "data": 4
+            },
+            {
+              "function": "set_count",
+              "count": {
+                "min": 4,
+                "max": 9
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:diamond",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 2
+              }
+            }
+          ],
+          "weight": 3
+        },
+        {
+          "type": "item",
+          "name": "minecraft:coal",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 3,
+                "max": 8
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:bread",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 3
+              }
+            }
+          ],
+          "weight": 15
+        },
+        {
+          "type": "item",
+          "name": "minecraft:melon_seeds",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:pumpkin_seeds",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:beetroot_seeds",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 2,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:glow_berries",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 3,
+                "max": 6
+              }
+            }
+          ],
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "rolls": 3,
+      "entries": [
+        {
+          "type": "item",
+          "name": "minecraft:music_disc_bounce",
+          "conditions": [
+            {
+              "condition": "biome_has_tag",
+              "tag": "sulfur_caves"
+            }
+          ],
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 1
+              }
+            }
+          ],
+          "weight": 10
+        },
+        {
+          "type": "item",
+          "name": "minecraft:rail",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 4,
+                "max": 8
+              }
+            }
+          ],
+          "weight": 20
+        },
+        {
+          "type": "item",
+          "name": "minecraft:golden_rail",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:detector_rail",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:activator_rail",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 4
+              }
+            }
+          ],
+          "weight": 5
+        },
+        {
+          "type": "item",
+          "name": "minecraft:torch",
+          "functions": [
+            {
+              "function": "set_count",
+              "count": {
+                "min": 1,
+                "max": 16
+              }
+            }
+          ],
+          "weight": 15
+        }
+      ]
+    }
+  ]
+}

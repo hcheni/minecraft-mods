@@ -2,7 +2,7 @@ import { EntityDamageCause } from "@minecraft/server";
 
 // Zapping: the mob you hit is zapped, then the zap jumps to mobs within 3 blocks of any zapped mob,
 // and from those to mobs within 3 blocks of them, until 3 × level mobs are zapped or nothing is left
-// in reach. Each zap deals 2 × level + 1 damage, and each mob is zapped once. Players (including you),
+// in reach. Each zap deals level + 1 damage, and each mob is zapped once. Players (including you),
 // tamed pets and villagers are never jumped to.
 //
 // The bolts are drawn with the pack's enchmods:zap particle: one down from the sky onto each zapped
@@ -20,7 +20,7 @@ const NEVER_ZAP = [
 ];
 
 export function zapDamage(level) {
-  return 2 * level + 1;
+  return level + 1;
 }
 
 function canZap(entity) {
