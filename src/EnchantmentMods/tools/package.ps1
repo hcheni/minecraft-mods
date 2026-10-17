@@ -6,7 +6,8 @@ Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
 
 $root = Split-Path -Parent $PSScriptRoot
 $modsDir = Join-Path (Split-Path -Parent (Split-Path -Parent $root)) "mods"
-$version = ((Get-Content (Join-Path $root "EnchantmentMods_BP\manifest.json") -Raw | ConvertFrom-Json).header.version)[0..1] -join "."
+$v = (Get-Content (Join-Path $root "EnchantmentMods_BP\manifest.json") -Raw | ConvertFrom-Json).header.version
+$version = if ($v[2] -ne 0) { $v -join "." } else { $v[0..1] -join "." }
 $out = Join-Path $modsDir "EnchantmentMods-v$version.mcaddon"
 
 New-Item -ItemType Directory -Force $modsDir | Out-Null

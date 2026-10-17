@@ -1,13 +1,20 @@
-import { EntityDamageCause } from "@minecraft/server";
+import { system, EntityDamageCause } from "@minecraft/server";
 
 // Zapping: the mob you hit is zapped, then the zap jumps to mobs within 3 blocks of any zapped mob,
 // and from those to mobs within 3 blocks of them, until 3 × level mobs are zapped or nothing is left
 // in reach. Each zap deals level + 1 damage, and each mob is zapped once. Players (including you),
 // tamed pets and villagers are never jumped to.
 //
+// The zaps strike 2 ticks after the hit, as damage of their own, the hit mob's too. (Until 1.5 the
+// first zap was added to the sword hit, and a player killed by that hit died even when holding a
+// totem, which then went off after they respawned.) The hit leaves its target briefly unable to take
+// smaller damage; if the zap doesn't land on it, it tries again once that's over.
+//
 // The bolts are drawn with the pack's enchmods:zap particle: one down from the sky onto each zapped
 // mob, and an arc from the mob the zap jumped from.
 
+const DELAY_TICKS = 2;
+const RETRY_TICKS = 9; // the hit's 10 ticks of protection are over by then
 const RANGE = 3;
 const MOBS_PER_LEVEL = 3;
 const PARTICLE = "enchmods:zap";
@@ -77,14 +84,43 @@ function strike(dimension, target, from) {
   }
 }
 
-// firstId: the mob that was hit (its zap damage was added to the hit itself). firstLocation is taken
-// before the hit, since a mob the hit kills may already be gone.
-export function startZap(attacker, firstId, level, firstLocation, dimension) {
+function alive(entity) {
+  try {
+    return entity.isValid && (entity.getComponent("minecraft:health")?.currentValue ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
+// Returns whether the damage landed.
+function zap(entity, damage, attacker) {
+  if (!alive(entity)) return false;
+  try {
+    const options = { cause: EntityDamageCause.lightning };
+    if (attacker.isValid) options.damagingEntity = attacker;
+    return entity.applyDamage(damage, options);
+  } catch {
+    return false; // It died or unloaded in the meantime.
+  }
+}
+
+// Called as the hit lands. first: the entity that was hit; firstLocation is taken now, in case the
+// hit kills it.
+export function startZap(attacker, first, level, firstLocation, dimension) {
+  const firstId = first.id;
+  system.runTimeout(() => runZap(attacker, first, firstId, level, firstLocation, dimension), DELAY_TICKS);
+}
+
+function runZap(attacker, first, firstId, level, firstLocation, dimension) {
   const max = MOBS_PER_LEVEL * level;
   const damage = zapDamage(level);
   const seen = new Set([firstId, attacker.id]);
-  const zapped = [{ location: firstLocation }];
-  strike(dimension, firstLocation);
+  const start = alive(first) ? middle(first) : firstLocation;
+  const zapped = [{ location: start }];
+  strike(dimension, start);
+  if (alive(first) && !zap(first, damage, attacker)) {
+    system.runTimeout(() => zap(first, damage, attacker), RETRY_TICKS);
+  }
 
   for (let i = 0; i < zapped.length && zapped.length < max; i++) {
     const from = zapped[i].location;
@@ -103,13 +139,7 @@ export function startZap(attacker, firstId, level, firstLocation, dimension) {
       const location = middle(entity);
       zapped.push({ location });
       strike(dimension, location, from);
-      try {
-        const options = { cause: EntityDamageCause.lightning };
-        if (attacker.isValid) options.damagingEntity = attacker;
-        entity.applyDamage(damage, options);
-      } catch {
-        // It died or unloaded in the meantime.
-      }
+      zap(entity, damage, attacker);
     }
   }
 }

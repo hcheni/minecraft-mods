@@ -2,7 +2,7 @@ import { world, system, EntityDamageCause, EquipmentSlot } from "@minecraft/serv
 import { canGoOn } from "./enchantments.js";
 import { getEnchants, getLevel, hasVanilla } from "./items.js";
 import { addStatus, damageTakenMultiplier } from "./status.js";
-import { startZap, zapDamage } from "./zap.js";
+import { startZap } from "./zap.js";
 
 // What the combat enchantments do.
 //   Frostbite            – on a melee hit the target freezes: Slowness III, snowflakes and 1 freezing
@@ -179,12 +179,11 @@ function amplifierBonus(attacker) {
   return buff && buff.endTick > system.currentTick ? AMPLIFIER_PER_LEVEL * buff.level : 0;
 }
 
-// Strength Surge, Strength Amplifier, Target, Protection Surge and the first Zapping zap change the
-// damage before it's dealt.
+// Strength Surge, Strength Amplifier, Target and Protection Surge change the damage before it's dealt.
+// Zapping starts here too, but its zaps come a moment later as damage of their own (see zap.js).
 world.beforeEvents.entityHurt.subscribe((event) => {
   const { hurtEntity, damageSource } = event;
   let multiplier = damageTakenMultiplier(hurtEntity);
-  let extra = 0;
 
   const attacker = damageSource.damagingEntity;
   if (attacker && isMelee(damageSource)) {
@@ -196,11 +195,8 @@ world.beforeEvents.entityHurt.subscribe((event) => {
       }
       const zapping = canGoOn("zapping", weapon.typeId) ? getLevel(weapon, "zapping") : 0;
       if (zapping) {
-        // The mob you hit is the first one zapped; the chain carries on next tick.
-        extra += zapDamage(zapping);
-        const { id, dimension } = hurtEntity;
         const { x, y, z } = hurtEntity.location;
-        system.run(() => startZap(attacker, id, zapping, { x, y: y + 0.9, z }, dimension));
+        startZap(attacker, hurtEntity, zapping, { x, y: y + 0.9, z }, hurtEntity.dimension);
       }
     }
   }
@@ -209,7 +205,7 @@ world.beforeEvents.entityHurt.subscribe((event) => {
     multiplier *= Math.max(0, 1 - PROTECTION_PER_LEVEL * armorLevels(hurtEntity, "protection_surge"));
   }
 
-  if (multiplier !== 1 || extra) event.damage = event.damage * multiplier + extra;
+  if (multiplier !== 1) event.damage *= multiplier;
 });
 
 world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource }) => {
