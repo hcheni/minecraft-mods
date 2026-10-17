@@ -227,6 +227,10 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource }) => {
 });
 
 world.afterEvents.entityDie.subscribe(({ deadEntity, damageSource }) => {
+  // Nothing carries over a death: no more freezing damage, no Strength Amplifier boost.
+  frozen.delete(deadEntity.id);
+  amplified.delete(deadEntity.id);
+
   const killer = damageSource.damagingEntity;
   if (!killer?.isValid || isUndead(deadEntity)) return;
   const weapon = mainhand(killer);

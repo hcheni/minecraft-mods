@@ -5,6 +5,7 @@ import { world, system } from "@minecraft/server";
 // on mobs with particles.
 //   Sticking – 20% slower per level, and jumps barely leave the ground, like on a honey block.
 //   Target   – takes 20% more damage per level.
+// Like vanilla effects, they all end when the player or mob dies, so nobody respawns with them.
 
 export const STATUS = {
   sticking: { name: "Sticking", icon: "", particle: "minecraft:honey_drip_particle" },
@@ -64,6 +65,27 @@ export function addStatus(entity, id, level, ticks) {
   if (id === "sticking") slow(entry, entry.effects.sticking.level);
 }
 
+// Ends one effect, undoing anything it changed on the entity. Every effect ends through here.
+function endEffect(entry, effect) {
+  delete entry.effects[effect];
+  if (effect === "sticking") unslow(entry);
+}
+
+// Ends all of an entity's effects at once (when it dies).
+export function clearStatus(entity) {
+  const entry = active.get(entity.id);
+  if (!entry) return;
+  for (const effect of Object.keys(entry.effects)) endEffect(entry, effect);
+  active.delete(entity.id);
+  if (entity.typeId === "minecraft:player") {
+    try {
+      entity.onScreenDisplay.setActionBar("");
+    } catch {
+      // Left the game.
+    }
+  }
+}
+
 export function statusLevel(entity, id) {
   const effect = active.get(entity.id)?.effects[id];
   return effect && effect.endTick > system.currentTick ? effect.level : 0;
@@ -95,9 +117,7 @@ function tick() {
         continue;
       }
       for (const [effect, e] of Object.entries(entry.effects)) {
-        if (e.endTick > now) continue;
-        delete entry.effects[effect];
-        if (effect === "sticking") unslow(entry);
+        if (e.endTick <= now) endEffect(entry, effect);
       }
       if (!Object.keys(entry.effects).length) {
         active.delete(id);
@@ -135,8 +155,12 @@ function restoreSaved(entity) {
   }
 }
 
+world.afterEvents.entityDie.subscribe(({ deadEntity }) => clearStatus(deadEntity));
+
 world.afterEvents.playerSpawn.subscribe(({ player, initialSpawn }) => {
-  if (initialSpawn) restoreSaved(player);
+  // Respawning: the effects were cleared at death; this catches a death the game didn't report.
+  if (!initialSpawn) clearStatus(player);
+  restoreSaved(player);
 });
 world.afterEvents.entityLoad.subscribe(({ entity }) => restoreSaved(entity));
 

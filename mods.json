@@ -1,9 +1,9 @@
 [
   {
-    "file": "EnchantmentMods-v1.5.1.mcaddon",
+    "file": "EnchantmentMods-v1.5.2.mcaddon",
     "name": "Enchantment Mods",
     "description": "15 new enchantments that work like vanilla ones. Weapons: six aspects (Frostbite, Venom, Withering, Weakening Touch, Sticking, Target), Strength Surge, Zapping chain lightning, and the mansion-only Life Steal and Strength Amplifier. Tools and weapons: Reach. Armor: Protection Surge, Knockback Protection and Alchemist (longer potions). Plus the Breaking curse. Find the books wherever vanilla enchanted books turn up (structure chests, fishing, librarians), or roll them at the enchanting table. Hold a book and tap an anvil to enchant an item or combine it with another book, vanilla or custom. Commands: /enchmods:enchant and /enchmods:disenchant work with every enchantment, ours and vanilla.",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "minecraft": "26.50+",
     "added": "2026-10-12",
     "tags": [
