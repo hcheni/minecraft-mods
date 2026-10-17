@@ -3,7 +3,9 @@ import { world, system } from "@minecraft/server";
 // Our own status effects. Add-ons can't register real effects, so these are kept here, shown to
 // players above the hotbar with their icons from the pack's glyph font (font/glyph_E5.png), and shown
 // on mobs with particles.
-//   Sticking – 20% slower per level, and jumps barely leave the ground, like on a honey block.
+//   Sticking – 20% slower per level, and jumps barely leave the ground, like on a honey block. Only
+//              the jump itself is cut: a wind charge or Wind Burst still throws you up, just
+//              without the extra height jumping would add.
 //   Target   – takes 20% more damage per level.
 // Like vanilla effects, they all end when the player or mob dies, so nobody respawns with them.
 
@@ -15,7 +17,9 @@ const ROMAN = ["", "I", "II", "III", "IV", "V"];
 const SLOW_PER_LEVEL = 0.2;
 const TARGET_PER_LEVEL = 0.2;
 const JUMP_KEPT = 0.2; // share of a jump's upward speed left, like a honey block
-const JUMP_START = 0.25; // upward speed that counts as a jump starting
+const JUMP_START = 0.25; // upward speed that counts as leaving the ground
+const JUMP_SPEED = 0.42; // upward speed a jump gives, plus 0.1 per Jump Boost level
+const MOB_JUMP_MARGIN = 0.1; // a mob going up faster than its jump was launched, not jumping
 const PARTICLE_TICKS = 8;
 const DISPLAY_TICKS = 10;
 const SAVED_MOVEMENT = "enchmods:movement"; // speed before Sticking, in case the player leaves or the mob unloads
@@ -95,6 +99,24 @@ export function damageTakenMultiplier(entity) {
   return 1 + TARGET_PER_LEVEL * statusLevel(entity, "target");
 }
 
+function jumpSpeed(entity) {
+  const boost = entity.getEffect("jump_boost");
+  return JUMP_SPEED + (boost ? 0.1 * (boost.amplifier + 1) : 0);
+}
+
+// Takes away most of the jump's own upward speed as it leaves the ground. Players say whether they
+// jumped; for a mob, going up faster than a jump means something launched it.
+function cutJump(entry) {
+  const { entity } = entry;
+  const vy = entity.getVelocity().y;
+  const leftGround = vy > JUMP_START && (entry.lastVy ?? 0) < 0.05;
+  entry.lastVy = vy;
+  if (!leftGround) return;
+  const jump = jumpSpeed(entity);
+  const jumping = entity.typeId === "minecraft:player" ? entity.isJumping : vy <= jump + MOB_JUMP_MARGIN;
+  if (jumping) entity.applyKnockback({ x: 0, z: 0 }, -Math.min(vy, jump) * (1 - JUMP_KEPT));
+}
+
 function formatTime(ticks) {
   const seconds = Math.ceil(ticks / 20);
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
@@ -124,12 +146,7 @@ function tick() {
         continue;
       }
 
-      if (entry.effects.sticking) {
-        // Cut a jump down as it starts.
-        const vy = entity.getVelocity().y;
-        if (vy > JUMP_START && (entry.lastVy ?? 0) < 0.05) entity.applyKnockback({ x: 0, z: 0 }, -vy * (1 - JUMP_KEPT));
-        entry.lastVy = vy;
-      }
+      if (entry.effects.sticking) cutJump(entry);
       if (now % PARTICLE_TICKS === 0) {
         const { x, y, z } = entity.location;
         for (const effect of Object.keys(entry.effects)) {
