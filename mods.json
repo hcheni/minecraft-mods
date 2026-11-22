@@ -1,9 +1,9 @@
 [
   {
-    "file": "BuildingTool-v1.0.1.mcaddon",
+    "file": "BuildingTool-v1.0.2.mcaddon",
     "name": "Building Tool",
-    "description": "Creative building tools. Right-click with the Wrench to set two corners and select everything between them (shown in see-through green), then right-click again to swap your hotbar for Delete, Rotate Right, Rotate Left and Copy. Rotating turns stairs, furnaces and other blocks with the build. Paste builds your copy around where you stand, turned the way you face. Undo takes back your last 10 deletes, rotations, copies and pastes, chest contents and all. Crouch and right-click with the Wrench to clear the selection and get your hotbar back. Wear the Builder's Hat to use the tools outside creative.",
-    "version": "1.0.1",
+    "description": "Creative building tools. Right-click with the Wrench to set two corners and select everything between them (shown in see-through green), then right-click again to swap your hotbar for Delete, Rotate Right, Rotate Left and Copy. Rotating turns stairs, furnaces and other blocks with the build. Cushions, paintings, armor stands and item frames (item and all) go along with every change. Paste builds your copy around where you stand, turned the way you face. Undo takes back your last 10 deletes, rotations, copies and pastes, chest contents and all. Crouch and right-click with the Wrench to clear the selection and get your hotbar back. Wear the Builder's Hat to use the tools outside creative.",
+    "version": "1.0.2",
     "minecraft": "26.50+",
     "added": "2026-11-21",
     "tags": [

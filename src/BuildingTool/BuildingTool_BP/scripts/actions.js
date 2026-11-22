@@ -3,13 +3,16 @@ import {
   MAX_DISTANCE, UNDO_LIMIT, add, busy, dims, distanceToBox, facing, floorPos, getState, newBase, posText, saveState,
   sizeOf, sub,
 } from "./state.js";
-import { captureJob, clearJob, deleteSaved, inWorld, isLoaded, placeJob, run, turnedOffset, turnedSize } from "./areas.js";
+import {
+  captureJob, clearArea, deleteSaved, inWorld, isLoaded, placeArea, removeDecor, run, turnedOffset, turnedSize,
+} from "./areas.js";
 import { hideSelection, showSelection } from "./highlight.js";
 import { exitToolMode } from "./hotbar.js";
 
 // Delete, Rotate Right/Left, Copy, Paste and Undo. Before Delete, Rotate and Paste change any blocks,
 // the area they'll change is saved, and Undo puts it back exactly as it was. Undo can go back through
-// your last 10 changes, newest first.
+// your last 10 changes, newest first. Each one takes the area's cushions, paintings and armor stands
+// along with its blocks (see areas.js).
 
 // Clears both coordinates and the selection, and gives the hotbar back if the tools are in it.
 export function deselect(player, st) {
@@ -59,7 +62,7 @@ export const deleteArea = (player) =>
     await run(captureJob(base, dimension, sel.min, size));
     pushUndo(st, { type: "delete", dim: sel.dim, base, min: sel.min, size });
     saveState(player, st);
-    await run(clearJob(dimension, sel.min, size));
+    await clearArea(dimension, sel.min, size);
     deselect(player, st);
     player.sendMessage(`§aDeleted the ${dims(size)} area. §7Undo brings it back.`);
   });
@@ -89,8 +92,8 @@ export const rotateArea = (player, clockwise) =>
 
     const temp = `${newBase(player, st)}_turn`;
     await run(captureJob(temp, dimension, sel.min, size, StructureSaveMode.Memory));
-    await run(clearJob(dimension, sel.min, size));
-    await run(placeJob(temp, dimension, newMin, size, clockwise ? 1 : 3));
+    await clearArea(dimension, sel.min, size);
+    await placeArea(temp, dimension, newMin, size, clockwise ? 1 : 3);
     deleteSaved(temp, size);
 
     if (st.sel === sel) {
@@ -142,7 +145,8 @@ export const pasteArea = (player) =>
     await run(captureJob(base, dimension, min, size));
     pushUndo(st, { type: "paste", dim: dimension.id, base, min, size });
     saveState(player, st);
-    await run(placeJob(clip.base, dimension, min, clip.size, k));
+    removeDecor(dimension, min, size);
+    await placeArea(clip.base, dimension, min, clip.size, k);
     player.sendMessage(`§aPasted the ${dims(size)} copy.`);
   });
 
@@ -167,7 +171,8 @@ export const undo = (player) =>
     }
     st.undo.pop();
     saveState(player, st);
-    await run(placeJob(entry.base, dimension, entry.min, entry.size));
+    removeDecor(dimension, entry.min, entry.size);
+    await placeArea(entry.base, dimension, entry.min, entry.size);
     deleteSaved(entry.base, entry.size);
     // Undoing a turn turns the selection back too, if it's still the turned area.
     if (entry.type === "rotate" && st.sel && entry.selAfter && JSON.stringify(st.sel) === JSON.stringify(entry.selAfter)) {

@@ -4,11 +4,17 @@ import { world, system, BlockVolume, StructureRotation, StructureSaveMode } from
 // what's inside chests and furnaces, sign text and so on. Placing one turned (StructureRotation)
 // turns the blocks too, so stairs, furnaces and doors face the new way.
 //
+// Item frames are blocks, so they go with the blocks, item and all. Cushions, paintings and armor
+// stands are entities: they're saved with the area too, and every change takes them along (Delete
+// removes them, Rotate turns them, Paste and Undo bring them back). Other entities in the area — mobs,
+// dropped items, players — are left alone.
+//
 // Big areas are split into tiles of up to 64 blocks a side, named "<base>_<i>_<j>_<k>", and handled
-// one tile per tick so the game doesn't freeze.
+// a few at a time so the game doesn't freeze.
 
 const TILE = 64;
 const FILL = 32; // fillBlocks does at most 32768 blocks at a time
+const DECOR = new Set(["minecraft:cushion", "minecraft:painting", "minecraft:armor_stand"]);
 const ROTATIONS = [StructureRotation.None, StructureRotation.Rotate90, StructureRotation.Rotate180, StructureRotation.Rotate270];
 
 function* tiles(size, step = TILE) {
@@ -65,33 +71,103 @@ export function* captureJob(base, dimension, min, size, saveMode = StructureSave
     const from = corner(min, t);
     world.structureManager.createFromWorld(id, dimension, from, farCorner(from, t), {
       includeBlocks: true,
-      includeEntities: false,
+      includeEntities: true,
       saveMode,
     });
     yield;
   }
 }
 
-// Places an area saved by captureJob (`size` is its size when saved) with its corner at `min`,
-// turned k quarter turns clockwise.
-export function* placeJob(base, dimension, min, size, k = 0) {
+function* placeJob(base, dimension, min, size, k, what) {
   for (const t of tiles(size)) {
     const o = turnedTileOffset(t, size, k);
     world.structureManager.place(tileId(base, t), dimension, { x: min.x + o.x, y: min.y + o.y, z: min.z + o.z }, {
       rotation: ROTATIONS[k],
-      includeEntities: false,
+      ...what,
     });
     yield;
   }
 }
 
-export function* clearJob(dimension, min, size) {
+function* clearJob(dimension, min, size) {
   for (const t of tiles(size, FILL)) {
     const from = corner(min, t);
     dimension.fillBlocks(new BlockVolume(from, farCorner(from, t)), "minecraft:air");
     yield;
   }
 }
+
+// Entities whose position is inside the area, or within `pad` blocks of it.
+const within = (p, min, size, pad) =>
+  p.x >= min.x - pad && p.x < min.x + size.x + pad &&
+  p.y >= min.y - pad && p.y < min.y + size.y + pad &&
+  p.z >= min.z - pad && p.z < min.z + size.z + pad;
+
+function entitiesIn(dimension, min, size, pad = 0) {
+  const from = { x: min.x - pad - 1, y: min.y - pad - 1, z: min.z - pad - 1 };
+  const volume = { x: size.x + 2 * pad + 2, y: size.y + 2 * pad + 2, z: size.z + 2 * pad + 2 };
+  return dimension.getEntities({ location: from, volume }).filter((e) => within(e.location, min, size, pad));
+}
+
+const removeEntity = (e) => {
+  try {
+    if (e.isValid && e.typeId !== "minecraft:player") e.remove();
+  } catch {}
+};
+
+// Takes the cushions, paintings and armor stands out of an area (without dropping them as items).
+export function removeDecor(dimension, min, size) {
+  for (const e of entitiesIn(dimension, min, size)) if (DECOR.has(e.typeId)) removeEntity(e);
+}
+
+// Entities that appear while an area is being changed. A torch or an item frame whose block goes
+// first drops off as an item; those items are removed, since the area is saved for Undo anyway.
+const watchers = new Set();
+world.afterEvents.entitySpawn.subscribe(({ entity }) => {
+  for (const seen of watchers) seen.add(entity);
+});
+
+async function tidily(dimension, min, size, work) {
+  const seen = new Set();
+  watchers.add(seen);
+  try {
+    await work();
+    await system.waitTicks(2);
+  } finally {
+    watchers.delete(seen);
+  }
+  for (const e of seen) {
+    if (!e.isValid || e.dimension.id !== dimension.id || DECOR.has(e.typeId) || e.typeId.startsWith("buildtool:")) continue;
+    if (within(e.location, min, size, 1)) removeEntity(e);
+  }
+}
+
+// Empties an area: its cushions, paintings and armor stands, then its blocks.
+export const clearArea = (dimension, min, size) =>
+  tidily(dimension, min, size, async () => {
+    removeDecor(dimension, min, size);
+    await run(clearJob(dimension, min, size));
+  });
+
+// Places an area saved by captureJob (`size` is its size when saved) with its corner at `min`, turned
+// k quarter turns clockwise. Blocks go first and entities after, so a painting always has its wall.
+// Of the saved entities, only cushions, paintings and armor stands are kept.
+export const placeArea = (base, dimension, min, size, k = 0) => {
+  const placed = turnedSize(size, k);
+  return tidily(dimension, min, placed, async () => {
+    const blocks = { includeBlocks: true, includeEntities: false };
+    await run(placeJob(base, dimension, min, size, k, blocks));
+    // In an area of several tiles, something hanging on a block in a tile placed later (a torch, an
+    // item frame) can drop off in between. Placing the tiles once more puts it back.
+    if (size.x > TILE || size.y > TILE || size.z > TILE) await run(placeJob(base, dimension, min, size, k, blocks));
+
+    const before = new Set(entitiesIn(dimension, min, placed, 1).map((e) => e.id));
+    for (const _ of placeJob(base, dimension, min, size, k, { includeBlocks: false, includeEntities: true }));
+    for (const e of entitiesIn(dimension, min, placed, 1)) {
+      if (!before.has(e.id) && !DECOR.has(e.typeId)) removeEntity(e);
+    }
+  });
+};
 
 export function deleteSaved(base, size) {
   for (const t of tiles(size)) {
