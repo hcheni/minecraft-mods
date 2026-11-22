@@ -216,11 +216,11 @@ const HAT = fromRows([
   "................",
 ], { O: hex("#4d3800"), Y: hex("#f5c518"), L: hex("#fff07a"), D: hex("#c99a05") });
 
-// Light green, a bit see-through. Faces at the front and back of the box overlap, so this is lighter
-// than the result looks.
+// Light green, about half see-through. Each wall of the box shows from both sides, so from outside you
+// look through two walls at open air and one at blocks inside the area.
 function selection() {
   const img = { width: 16, height: 16, data: Buffer.alloc(16 * 16 * 4) };
-  for (let i = 0; i < 256; i++) img.data.set([140, 255, 140, 96], i * 4);
+  for (let i = 0; i < 256; i++) img.data.set([140, 255, 140, 115], i * 4);
   return img;
 }
 

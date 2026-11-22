@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Building Tool v1.0 (Behavior)",
+    "name": "Building Tool v1.0.1 (Behavior)",
     "description": "Wrench, Delete, Rotate, Copy, Paste and Undo tools for building in creative, plus the Builder's Hat to use them anywhere.",
     "uuid": "a7a3b819-c241-477d-9f51-dc4b43d037fc",
     "version": [
       1,
       0,
-      0
+      1
     ],
     "min_engine_version": [
       1,
@@ -22,7 +22,7 @@
       "version": [
         1,
         0,
-        0
+        1
       ]
     },
     {
@@ -33,7 +33,7 @@
       "version": [
         1,
         0,
-        0
+        1
       ]
     }
   ],
@@ -47,7 +47,7 @@
       "version": [
         1,
         0,
-        0
+        1
       ]
     }
   ]

@@ -30,11 +30,10 @@ function pushUndo(st, entry) {
   }
 }
 
+// One change at a time. A click that comes in while the last change is still being made (holding the
+// button down, or one tap counted twice) is simply ignored.
 async function guarded(player, action) {
-  if (busy.has(player.id)) {
-    player.sendMessage("§eStill working on your last change…");
-    return;
-  }
+  if (busy.has(player.id)) return;
   busy.add(player.id);
   try {
     await action(getState(player));
