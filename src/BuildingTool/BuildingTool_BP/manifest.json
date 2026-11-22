@@ -1,0 +1,54 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Building Tool v1.0 (Behavior)",
+    "description": "Wrench, Delete, Rotate, Copy, Paste and Undo tools for building in creative, plus the Builder's Hat to use them anywhere.",
+    "uuid": "a7a3b819-c241-477d-9f51-dc4b43d037fc",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      21,
+      80
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "fbf1a5ca-595f-4485-abb5-39cac2b96631",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "58a69600-a16c-4f41-bcab-8a5c95b6ce56",
+      "entry": "scripts/main.js",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.10.0"
+    },
+    {
+      "uuid": "94584257-4951-4103-8bef-7ac1781eedf5",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ]
+}

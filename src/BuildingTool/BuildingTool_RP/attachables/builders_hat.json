@@ -1,0 +1,28 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "buildtool:builders_hat",
+      "item": {
+        "buildtool:builders_hat": "q.is_item_name_any('slot.armor.head', 0, 'buildtool:builders_hat')"
+      },
+      "materials": {
+        "default": "armor",
+        "enchanted": "armor_enchanted"
+      },
+      "textures": {
+        "default": "textures/models/armor/builders_hat",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.buildtool.builders_hat"
+      },
+      "scripts": {
+        "parent_setup": "v.helmet_layer_visible = 0.0;"
+      },
+      "render_controllers": [
+        "controller.render.armor"
+      ]
+    }
+  }
+}

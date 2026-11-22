@@ -1,0 +1,26 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:item": {
+    "description": {
+      "identifier": "buildtool:builders_hat",
+      "menu_category": {
+        "category": "equipment"
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "buildtool_builders_hat"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Builder's Hat\n§7Wear it to use the building tools outside creative"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:wearable": {
+        "slot": "slot.armor.head",
+        "protection": 1
+      }
+    }
+  }
+}

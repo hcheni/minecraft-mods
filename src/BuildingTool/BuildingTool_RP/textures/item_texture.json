@@ -1,0 +1,30 @@
+{
+  "resource_pack_name": "building_tool",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "buildtool_wrench": {
+      "textures": "textures/items/buildtool_wrench"
+    },
+    "buildtool_delete": {
+      "textures": "textures/items/buildtool_delete"
+    },
+    "buildtool_rotate_right": {
+      "textures": "textures/items/buildtool_rotate_right"
+    },
+    "buildtool_rotate_left": {
+      "textures": "textures/items/buildtool_rotate_left"
+    },
+    "buildtool_copy": {
+      "textures": "textures/items/buildtool_copy"
+    },
+    "buildtool_paste": {
+      "textures": "textures/items/buildtool_paste"
+    },
+    "buildtool_undo": {
+      "textures": "textures/items/buildtool_undo"
+    },
+    "buildtool_builders_hat": {
+      "textures": "textures/items/buildtool_builders_hat"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "format_version": "1.21.60",
+  "minecraft:item": {
+    "description": {
+      "identifier": "buildtool:delete",
+      "menu_category": {
+        "category": "none",
+        "is_hidden_in_commands": true
+      }
+    },
+    "components": {
+      "minecraft:icon": {
+        "textures": {
+          "default": "buildtool_delete"
+        }
+      },
+      "minecraft:display_name": {
+        "value": "Delete\n§7Right-click: clear the selected area"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true
+    }
+  }
+}

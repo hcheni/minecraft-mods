@@ -1,5 +1,20 @@
 [
   {
+    "file": "BuildingTool-v1.0.mcaddon",
+    "name": "Building Tool",
+    "description": "Creative building tools. Right-click with the Wrench to set two corners and select everything between them (shown in see-through green), then right-click again to swap your hotbar for Delete, Rotate Right, Rotate Left and Copy. Rotating turns stairs, furnaces and other blocks with the build. Paste builds your copy around where you stand, turned the way you face. Undo takes back your last 10 deletes, rotations, copies and pastes, chest contents and all. Crouch and right-click with the Wrench to clear the selection and get your hotbar back. Wear the Builder's Hat to use the tools outside creative.",
+    "version": "1.0.0",
+    "minecraft": "26.50+",
+    "added": "2026-11-21",
+    "tags": [
+      "Building",
+      "Tools",
+      "Items",
+      "Creative"
+    ],
+    "icon": "icons/building-tool.svg"
+  },
+  {
     "file": "EnchantmentMods-v1.5.3.mcaddon",
     "name": "Enchantment Mods",
     "description": "15 new enchantments that work like vanilla ones. Weapons: six aspects (Frostbite, Venom, Withering, Weakening Touch, Sticking, Target), Strength Surge, Zapping chain lightning, and the mansion-only Life Steal and Strength Amplifier. Tools and weapons: Reach. Armor: Protection Surge, Knockback Protection and Alchemist (longer potions). Plus the Breaking curse. Find the books wherever vanilla enchanted books turn up (structure chests, fishing, librarians), or roll them at the enchanting table. Hold a book and tap an anvil to enchant an item or combine it with another book, vanilla or custom. Commands: /enchmods:enchant and /enchmods:disenchant work with every enchantment, ours and vanilla.",
