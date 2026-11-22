@@ -11,7 +11,7 @@ import { enforceTools, enterToolMode, sweepStores } from "./hotbar.js";
 // wearing a Builder's Hat.
 //
 // Wrench: first right-click saves where you stand as coordinate 1, the second as coordinate 2 and
-// selects everything between them (air too), shown as a light green box. With an area selected, a
+// selects everything between them (air too), shown as a light blue box. With an area selected, a
 // right-click swaps your hotbar for Delete, Rotate Right, Rotate Left and Copy (the wrench stays in the
 // last slot). Crouch and right-click to clear the coordinates and selection and get your hotbar back.
 // Going more than 20 blocks from the selection clears it as well.

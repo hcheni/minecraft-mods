@@ -6,9 +6,9 @@
       "bones": {
         "box": {
           "scale": [
-            "q.property('buildtool:sx')",
-            "q.property('buildtool:sy')",
-            "q.property('buildtool:sz')"
+            "math.max(q.property('buildtool:sx'), 1)",
+            "math.max(q.property('buildtool:sy'), 1)",
+            "math.max(q.property('buildtool:sz'), 1)"
           ]
         }
       }

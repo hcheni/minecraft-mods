@@ -1,7 +1,7 @@
 import { world } from "@minecraft/server";
 import { sizeOf } from "./state.js";
 
-// The light green box over a selected area: one buildtool:selection entity sitting on top of the area,
+// The light blue box over a selected area: one buildtool:selection entity sitting on top of the area,
 // whose model is stretched to the area's size (the buildtool:sx/sy/sz properties) and hangs down over it.
 // It is a hair bigger than the blocks so its faces don't flicker against theirs. Its walls show from
 // both sides, so you see it from inside the area too.
@@ -51,7 +51,7 @@ export function showSelection(player, sel) {
     console.warn(`Building Tool: couldn't show the selection box: ${e?.stack ?? e}`);
     if (!warned.has(player.id) && player.isValid) {
       warned.add(player.id);
-      player.sendMessage(`§7(The green box couldn't be shown: ${e?.message ?? e}. The selection still works.)`);
+      player.sendMessage(`§7(The blue box couldn't be shown: ${e?.message ?? e}. The selection still works.)`);
     }
   }
 }

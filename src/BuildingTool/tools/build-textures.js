@@ -1,6 +1,6 @@
 // Draws Building Tool's textures into BuildingTool_RP/textures and the site icon:
 //   textures/items/*.png                       – 16x16 item icons (wrench, delete, rotate, copy, paste, undo, hat)
-//   textures/entity/buildtool_selection.png    – the light, see-through green of a selected area
+//   textures/entity/buildtool_selection.png    – the light, half see-through blue of a selected area
 //   textures/models/armor/builders_hat.png     – the worn hard hat (64x32, box UV of the hat model)
 //   ../../icons/building-tool.svg              – the wrench, for the download site
 // Run: node src/BuildingTool/tools/build-textures.js [preview.png]   (optional 8x preview of the icons)
@@ -216,11 +216,11 @@ const HAT = fromRows([
   "................",
 ], { O: hex("#4d3800"), Y: hex("#f5c518"), L: hex("#fff07a"), D: hex("#c99a05") });
 
-// Light green, about half see-through. Each wall of the box shows from both sides, so from outside you
+// Light blue, half see-through. Each wall of the box shows from both sides, so from outside you
 // look through two walls at open air and one at blocks inside the area.
 function selection() {
   const img = { width: 16, height: 16, data: Buffer.alloc(16 * 16 * 4) };
-  for (let i = 0; i < 256; i++) img.data.set([140, 255, 140, 115], i * 4);
+  for (let i = 0; i < 256; i++) img.data.set([90, 160, 255, 128], i * 4);
   return img;
 }
 
